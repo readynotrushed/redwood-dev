@@ -198,8 +198,15 @@
     align-items: center;
     gap: 1rem;
     transition: box-shadow 0.2s, transform 0.15s;
+    flex-wrap: wrap;
   }
   .session-card:hover { box-shadow: 0 4px 16px var(--shadow); transform: translateY(-1px); }
+  .session-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
   .session-time-badge {
     background: var(--leaf-light);
     color: var(--leaf);
@@ -233,6 +240,25 @@
     transition: background 0.2s;
   }
   .zoom-btn:hover { background: #3d6b4a; }
+  .cal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.45rem 0.7rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--bark-light);
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .cal-btn:hover { border-color: var(--bark); color: var(--bark); background: var(--cream); }
+  .cal-divider { font-size: 0.7rem; color: var(--border); }
 
   .empty-day {
     text-align: center;
@@ -254,7 +280,9 @@
     .main { padding: 1rem; }
     header { padding: 0.8rem 1rem; }
     .session-card { flex-wrap: wrap; }
-    .zoom-btn { width: 100%; justify-content: center; }
+    .session-card-actions { width: 100%; justify-content: flex-start; }
+    .zoom-btn { flex: 1; justify-content: center; }
+    .cal-divider { display: none; }
   }
 </style>
 </head>
@@ -450,6 +478,7 @@
   }
 
   function sessionCardHtml(s, isAfternoon) {
+    const gcalUrl = buildGcalUrl(s);
     return `
       <div class="session-card">
         <div class="session-time-badge ${isAfternoon ? 'afternoon' : ''}">${displayTime(s.time)}</div>
@@ -457,8 +486,61 @@
           <div class="session-teacher">${s.teacher}</div>
           <div class="session-activity">${s.activity || 'Drop in and see!'}</div>
         </div>
-        <a class="zoom-btn" href="${s.zoom_link}" target="_blank">Join ↗</a>
+        <div class="session-card-actions">
+          <a class="zoom-btn" href="${s.zoom_link}" target="_blank">Join ↗</a>
+          <span class="cal-divider">|</span>
+          <button class="cal-btn" onclick='downloadIcs(${JSON.stringify(s)})'>📅 iCal</button>
+          <a class="cal-btn" href="${gcalUrl}" target="_blank">Google Cal</a>
+        </div>
       </div>`;
+  }
+
+  function buildGcalUrl(s) {
+    // Sessions are stored in Dubai time (GMT+4)
+    // Google Calendar expects UTC times in format YYYYMMDDTHHmmssZ
+    const [year, month, day] = s.date.split('-').map(Number);
+    const [h, m] = s.time.split(':').map(Number);
+    // Convert Dubai (GMT+4) to UTC by subtracting 4 hours
+    const startUtc = new Date(Date.UTC(year, month - 1, day, h - 4, m, 0));
+    const endUtc = new Date(startUtc.getTime() + 15 * 60 * 1000); // 15 min session
+    const fmt = d => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const title = encodeURIComponent(`Redwood: ${s.teacher}${s.activity ? ' — ' + s.activity : ''}`);
+    const details = encodeURIComponent(`Join Zoom: ${s.zoom_link}\n\nRedwood Sessions — any Redwood child can join.`);
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${fmt(startUtc)}/${fmt(endUtc)}&details=${details}`;
+  }
+
+  function downloadIcs(s) {
+    const [year, month, day] = s.date.split('-').map(Number);
+    const [h, m] = s.time.split(':').map(Number);
+    const startUtc = new Date(Date.UTC(year, month - 1, day, h - 4, m, 0));
+    const endUtc = new Date(startUtc.getTime() + 15 * 60 * 1000);
+    const fmt = d => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const uid = `redwood-${s.id}@lunamargherita.com`;
+    const title = `Redwood: ${s.teacher}${s.activity ? ' — ' + s.activity : ''}`;
+    const ics = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Redwood Sessions//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      `UID:${uid}`,
+      `DTSTART:${fmt(startUtc)}`,
+      `DTEND:${fmt(endUtc)}`,
+      `SUMMARY:${title}`,
+      `DESCRIPTION:Join Zoom: ${s.zoom_link}\\nAny Redwood child can join.`,
+      `URL:${s.zoom_link}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `redwood-session-${s.date}-${s.time.replace(':', '')}.ics`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 </script>
 </body>
