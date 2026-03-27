@@ -633,6 +633,7 @@
 
   // --- DATES & SLOTS ---
   const DAYS = [
+    { label: 'Today Test', date: '2026-03-27' },  // TEMP - remove before prod
     { label: 'Mon 31 Mar', date: '2025-03-31' },  // will fix to 2025
     { label: 'Tue 1 Apr', date: '2025-04-01' },
     { label: 'Wed 2 Apr', date: '2025-04-02' },
@@ -644,6 +645,7 @@
   DAYS.forEach(d => { d.date = d.date.replace('2025', '2026'); });
   // Correct labels
   const CORRECT_DAYS = [
+    { label: 'Today Test', date: '2026-03-27' },  // TEMP - remove before prod
     { label: 'Mon 30 Mar', date: '2026-03-30' },
     { label: 'Tue 31 Mar', date: '2026-03-31' },
     { label: 'Wed 1 Apr', date: '2026-04-01' },
