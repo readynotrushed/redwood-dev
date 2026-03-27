@@ -445,6 +445,7 @@
       <select id="modal-time-select">
         <option value="">Select time…</option>
       </select>
+      <div style="font-size:0.75rem;color:var(--bark-light);margin-top:0.4rem;">🕐 All times are Dubai time (GMT+4)</div>
     </div>
     <div class="form-group">
       <label>Activity <span style="font-weight:300;text-transform:none">(e.g. Songs, Story, Phonics)</span></label>
@@ -464,7 +465,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const WORKER_URL = 'https://redwood.lunamargherita.com';
+  const WORKER_URL = 'https://api.lunamargherita.com';
   const PASSWORD = 'test1';
   const DUBAI_OFFSET = 4; // Dubai is GMT+4
   let tzOffset = 4; // current selected offset, default Dubai
