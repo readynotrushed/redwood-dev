@@ -199,8 +199,13 @@
     gap: 1rem;
     transition: box-shadow 0.2s, transform 0.15s;
     flex-wrap: wrap;
+    position: relative;
   }
   .session-card:hover { box-shadow: 0 4px 16px var(--shadow); transform: translateY(-1px); }
+  .session-card.is-live {
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 3px rgba(231,76,60,0.08);
+  }
   .session-card-actions {
     display: flex;
     align-items: center;
@@ -225,6 +230,35 @@
   .session-info { flex: 1 }
   .session-teacher { font-weight: 500; font-size: 0.95rem; }
   .session-activity { font-size: 0.82rem; color: var(--bark-light); margin-top: 0.15rem; }
+
+  /* LIVE badge */
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #e74c3c;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 20px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  /* Buttons */
   .zoom-btn {
     display: inline-flex;
     align-items: center;
@@ -240,7 +274,7 @@
     transition: background 0.2s;
   }
   .zoom-btn:hover { background: #3d6b4a; }
-  .cal-btn {
+  .add-cal-btn {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
@@ -253,12 +287,45 @@
     color: var(--bark-light);
     cursor: pointer;
     white-space: nowrap;
-    text-decoration: none;
     transition: all 0.2s;
     font-family: 'DM Sans', sans-serif;
+    position: relative;
   }
-  .cal-btn:hover { border-color: var(--bark); color: var(--bark); background: var(--cream); }
-  .cal-divider { font-size: 0.7rem; color: var(--border); }
+  .add-cal-btn:hover { border-color: var(--bark); color: var(--bark); background: var(--cream); }
+
+  /* Calendar popup */
+  .cal-popup {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 0;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px var(--shadow);
+    padding: 0.5rem;
+    min-width: 160px;
+    z-index: 50;
+    display: none;
+  }
+  .cal-popup.open { display: block; }
+  .cal-popup-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--bark);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+  .cal-popup-item:hover { background: var(--cream); }
 
   .empty-day {
     text-align: center;
@@ -282,7 +349,7 @@
     .session-card { flex-wrap: wrap; }
     .session-card-actions { width: 100%; justify-content: flex-start; }
     .zoom-btn { flex: 1; justify-content: center; }
-    .cal-divider { display: none; }
+    .cal-popup { right: auto; left: 0; }
   }
 </style>
 </head>
@@ -406,8 +473,10 @@
   function init() {
     buildDayTabs();
     loadSessions();
-    // Auto-refresh every 2 minutes
+    // Auto-refresh sessions every 2 minutes
     setInterval(loadSessions, 120000);
+    // Re-render every minute to update LIVE status without a network call
+    setInterval(renderSchedule, 60000);
   }
 
   function buildDayTabs() {
@@ -477,23 +546,57 @@
     container.innerHTML = html;
   }
 
+  function isLive(s) {
+    // Compare current Dubai time against session window
+    const now = new Date();
+    const dubaiNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dubai' }));
+    const [year, month, day] = s.date.split('-').map(Number);
+    const [h, m] = s.time.split(':').map(Number);
+    const sessionStart = new Date(year, month - 1, day, h, m, 0);
+    const sessionEnd = new Date(sessionStart.getTime() + 15 * 60 * 1000);
+    return dubaiNow >= sessionStart && dubaiNow < sessionEnd;
+  }
+
   function sessionCardHtml(s, isAfternoon) {
+    const live = isLive(s);
     const gcalUrl = buildGcalUrl(s);
+    const popupId = `cal-popup-${s.id}`;
     return `
-      <div class="session-card">
+      <div class="session-card${live ? ' is-live' : ''}">
         <div class="session-time-badge ${isAfternoon ? 'afternoon' : ''}">${displayTime(s.time)}</div>
         <div class="session-info">
-          <div class="session-teacher">${s.teacher}</div>
+          <div class="session-teacher">
+            ${s.teacher}
+            ${live ? '<span class="live-badge"><span class="live-dot"></span>LIVE</span>' : ''}
+          </div>
           <div class="session-activity">${s.activity || 'Drop in and see!'}</div>
         </div>
         <div class="session-card-actions">
           <a class="zoom-btn" href="${s.zoom_link}" target="_blank">Join ↗</a>
-          <span class="cal-divider">|</span>
-          <button class="cal-btn" onclick='downloadIcs(${JSON.stringify(s)})'>📅 iCal</button>
-          <a class="cal-btn" href="${gcalUrl}" target="_blank">Google Cal</a>
+          <div style="position:relative">
+            <button class="add-cal-btn" onclick="toggleCalPopup('${popupId}', event)">📅 Add to calendar</button>
+            <div class="cal-popup" id="${popupId}">
+              <button class="cal-popup-item" onclick='downloadIcs(${JSON.stringify(s).replace(/'/g, "&#39;")})'>📱 iCal / Apple Calendar</button>
+              <a class="cal-popup-item" href="${gcalUrl}" target="_blank">🗓 Google Calendar</a>
+            </div>
+          </div>
         </div>
       </div>`;
   }
+
+  function toggleCalPopup(id, e) {
+    e.stopPropagation();
+    const popup = document.getElementById(id);
+    const isOpen = popup.classList.contains('open');
+    // Close all popups first
+    document.querySelectorAll('.cal-popup').forEach(p => p.classList.remove('open'));
+    if (!isOpen) popup.classList.add('open');
+  }
+
+  // Close popups when clicking elsewhere
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.cal-popup').forEach(p => p.classList.remove('open'));
+  });
 
   function buildGcalUrl(s) {
     // Sessions are stored in Dubai time (GMT+4)
