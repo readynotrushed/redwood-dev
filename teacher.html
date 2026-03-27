@@ -210,6 +210,31 @@
   }
   .session-card:hover { box-shadow: 0 2px 12px var(--shadow); }
   .session-card.mine { border-color: var(--leaf); background: var(--leaf-light); }
+  .session-card.is-live { border-color: #e74c3c; box-shadow: 0 0 0 3px rgba(231,76,60,0.08); }
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #e74c3c;
+    color: white;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+  }
+  .live-dot {
+    width: 5px; height: 5px;
+    background: white;
+    border-radius: 50%;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
   .session-info { flex: 1; }
   .session-teacher { font-weight: 500; font-size: 0.9rem; color: var(--bark); }
   .session-activity { font-size: 0.8rem; color: var(--bark-light); margin-top: 0.1rem; }
@@ -342,40 +367,6 @@
     gap: 0.75rem;
     margin-bottom: 1.25rem;
   }
-  .filter-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    font-size: 0.85rem;
-    color: var(--bark-light);
-    user-select: none;
-  }
-  .filter-toggle input[type="checkbox"] { display: none; }
-  .toggle-pill {
-    width: 36px;
-    height: 20px;
-    border-radius: 10px;
-    background: var(--border);
-    position: relative;
-    transition: background 0.2s;
-    flex-shrink: 0;
-  }
-  .toggle-pill::after {
-    content: '';
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: white;
-    top: 3px;
-    left: 3px;
-    transition: transform 0.2s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
-  .filter-toggle input:checked + .toggle-pill { background: var(--leaf); }
-  .filter-toggle input:checked + .toggle-pill::after { transform: translateX(16px); }
-  .filter-toggle.active { color: var(--leaf); font-weight: 500; }
   .toast {
     position: fixed;
     bottom: 2rem;
@@ -401,164 +392,102 @@
 
   /* TWO-COLUMN LAYOUT */
   .app-body {
-    display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 0;
-    height: calc(100vh - 65px);
-    overflow: hidden;
-  }
-  .schedule-col {
-    overflow-y: auto;
     padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
   }
-  .chat-col {
-    border-left: 1px solid var(--border);
+
+  /* SESSION ENCOURAGEMENT THREAD */
+  .session-thread {
+    margin-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    padding-top: 0.75rem;
+    display: none;
+  }
+  .session-thread.open { display: block; }
+  .thread-messages {
     display: flex;
     flex-direction: column;
-    background: white;
-    height: 100%;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    max-height: 180px;
+    overflow-y: auto;
   }
-  .chat-header {
-    padding: 1rem 1.2rem 0.75rem;
-    border-bottom: 1px solid var(--border);
-    font-family: 'DM Serif Display', serif;
-    font-size: 1rem;
+  .thread-msg {
+    font-size: 0.82rem;
     color: var(--bark);
+    line-height: 1.4;
+  }
+  .thread-msg-name {
+    font-weight: 600;
+    color: var(--leaf);
+    margin-right: 0.3rem;
+  }
+  .thread-msg-time {
+    font-size: 0.68rem;
+    color: var(--border);
+    margin-left: 0.3rem;
+  }
+  .thread-empty {
+    font-size: 0.8rem;
+    color: var(--border);
+    font-style: italic;
+  }
+  .thread-input-row {
     display: flex;
-    align-items: center;
     gap: 0.5rem;
-    flex-shrink: 0;
-  }
-  .chat-header small {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.72rem;
-    color: var(--bark-light);
-    font-weight: 400;
-    margin-left: auto;
-  }
-  .chat-username-bar {
-    padding: 0.6rem 1rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
     align-items: center;
-    gap: 0.5rem;
-    flex-shrink: 0;
-    background: var(--cream);
   }
-  .chat-username-bar label {
-    font-size: 0.72rem;
-    color: var(--bark-light);
-    white-space: nowrap;
-  }
-  .chat-username-input {
-    flex: 1;
+  .thread-name-input, .thread-msg-input {
     font-family: 'DM Sans', sans-serif;
     font-size: 0.82rem;
     border: 1.5px solid var(--border);
-    border-radius: 6px;
-    padding: 0.3rem 0.6rem;
-    color: var(--bark);
-    background: white;
-    outline: none;
-  }
-  .chat-username-input:focus { border-color: var(--leaf); }
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  .chat-msg {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-  }
-  .chat-msg-header {
-    display: flex;
-    align-items: baseline;
-    gap: 0.4rem;
-  }
-  .chat-msg-name {
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--bark);
-  }
-  .chat-msg-time {
-    font-size: 0.68rem;
-    color: var(--border);
-  }
-  .chat-msg-text {
-    font-size: 0.85rem;
-    color: var(--bark);
-    line-height: 1.4;
-    background: var(--cream);
-    border-radius: 0 10px 10px 10px;
-    padding: 0.5rem 0.75rem;
-    max-width: 100%;
-    word-break: break-word;
-  }
-  .chat-msg.mine .chat-msg-text {
-    background: var(--leaf-light);
-    border-radius: 10px 0 10px 10px;
-  }
-  .chat-msg.mine { align-items: flex-end; }
-  .chat-msg.mine .chat-msg-header { flex-direction: row-reverse; }
-  .chat-input-bar {
-    padding: 0.75rem 1rem;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 0.5rem;
-    flex-shrink: 0;
-  }
-  .chat-input {
-    flex: 1;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.85rem;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 0.55rem 0.85rem;
+    border-radius: 8px;
+    padding: 0.45rem 0.7rem;
     color: var(--bark);
     background: var(--cream);
     outline: none;
-    resize: none;
+    transition: border-color 0.2s;
   }
-  .chat-input:focus { border-color: var(--leaf); }
-  .chat-send-btn {
+  .thread-name-input { width: 110px; flex-shrink: 0; }
+  .thread-msg-input { flex: 1; }
+  .thread-name-input:focus, .thread-msg-input:focus { border-color: var(--leaf); }
+  .thread-send-btn {
     background: var(--leaf);
     color: white;
     border: none;
-    border-radius: 10px;
-    padding: 0.55rem 1rem;
+    border-radius: 8px;
+    padding: 0.45rem 0.9rem;
     font-family: 'DM Sans', sans-serif;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.2s;
     white-space: nowrap;
+    transition: background 0.2s;
+    flex-shrink: 0;
   }
-  .chat-send-btn:hover { background: #3d6b4a; }
-  .chat-send-btn:disabled { background: var(--border); cursor: not-allowed; }
-  .chat-empty {
-    text-align: center;
-    color: var(--border);
-    font-size: 0.82rem;
-    padding: 2rem 1rem;
+  .thread-send-btn:hover { background: #3d6b4a; }
+  .thread-send-btn:disabled { background: var(--border); cursor: not-allowed; }
+  .thread-toggle-btn {
+    background: none;
+    border: none;
+    font-size: 0.75rem;
+    color: var(--bark-light);
+    cursor: pointer;
+    padding: 0;
+    font-family: 'DM Sans', sans-serif;
+    text-decoration: underline;
+    margin-top: 0.4rem;
+    display: block;
   }
+  .thread-toggle-btn:hover { color: var(--leaf); }
 
-  @media (max-width: 768px) {
-    .app-body {
-      grid-template-columns: 1fr;
-      height: auto;
-      overflow: visible;
-    }
-    .schedule-col { padding: 1rem; height: auto; overflow: visible; }
-    .chat-col {
-      border-left: none;
-      border-top: 1px solid var(--border);
-      height: 500px;
-    }
+  @media (max-width: 600px) {
+    .app-body { padding: 1rem; }
+    header { padding: 1rem; }
+    .slot-row { grid-template-columns: 60px 1fr; }
+    .thread-input-row { flex-wrap: wrap; }
+    .thread-name-input { width: 100%; }
   }
 </style>
 </head>
@@ -616,32 +545,17 @@
     <div class="schedule-col">
       <div class="day-tabs" id="day-tabs"></div>
       <div class="filter-bar">
-        <label class="filter-toggle" id="filter-label">
-          <input type="checkbox" id="filter-toggle" onchange="onFilterChange()" />
-          <span class="toggle-pill"></span>
-          <span id="filter-text">Show my sessions only</span>
-        </label>
+        <label style="font-size:0.78rem;color:var(--bark-light);white-space:nowrap;">Filter by teacher:</label>
+        <select class="tz-select" id="teacher-filter" onchange="onFilterChange()" style="max-width:200px;">
+          <option value="">All teachers</option>
+          <option>Ms Ghita</option>
+          <option>Ms Nour</option>
+          <option>Ms Emy</option>
+          <option>Ms Ashley</option>
+        </select>
       </div>
       <div class="schedule" id="schedule">
         <div class="loading">Loading sessions…</div>
-      </div>
-    </div>
-
-    <div class="chat-col">
-      <div class="chat-header">
-        💬 Team chat
-        <small>Teachers only</small>
-      </div>
-      <div class="chat-username-bar">
-        <label>You are:</label>
-        <input class="chat-username-input" id="chat-username" placeholder="Your name" maxlength="30" />
-      </div>
-      <div class="chat-messages" id="chat-messages">
-        <div class="chat-empty">No messages yet. Say hello 👋</div>
-      </div>
-      <div class="chat-input-bar">
-        <input class="chat-input" id="chat-input" placeholder="Type a message…" maxlength="300" />
-        <button class="chat-send-btn" id="chat-send-btn" onclick="sendMessage()">Send</button>
       </div>
     </div>
   </div>
@@ -760,7 +674,6 @@
   let activeDayIndex = 0;
   let modalPreselectedSlot = null;
   let editingSessionId = null;
-  let filterMySessions = false;
   let selectedTeacher = '';
 
   // --- AUTH ---
@@ -825,22 +738,7 @@
   }
 
   function onFilterChange() {
-    filterMySessions = document.getElementById('filter-toggle').checked;
-    const label = document.getElementById('filter-label');
-    const text = document.getElementById('filter-text');
-    if (filterMySessions && selectedTeacher) {
-      label.classList.add('active');
-      text.textContent = `Showing: ${selectedTeacher}`;
-    } else {
-      label.classList.remove('active');
-      text.textContent = 'Show my sessions only';
-      if (filterMySessions && !selectedTeacher) {
-        showToast('Select your name in the booking form first.', 'error');
-        document.getElementById('filter-toggle').checked = false;
-        filterMySessions = false;
-        return;
-      }
-    }
+    selectedTeacher = document.getElementById('teacher-filter').value;
     renderSchedule();
   }
 
@@ -848,7 +746,7 @@
   function renderSchedule() {
     const day = CORRECT_DAYS[activeDayIndex];
     let daySessions = sessions.filter(s => s.date === day.date);
-    if (filterMySessions && selectedTeacher) {
+    if (selectedTeacher) {
       daySessions = daySessions.filter(s => s.teacher === selectedTeacher);
     }
     const container = document.getElementById('schedule');
@@ -882,10 +780,14 @@
   function renderSlotRow(slot, slotSessions, date) {
     let sessionsHtml = '';
     slotSessions.forEach(s => {
+      const live = isSessionLive(s);
       sessionsHtml += `
-        <div class="session-card mine">
+        <div class="session-card${live ? ' is-live' : ''}">
           <div class="session-info">
-            <div class="session-teacher">${s.teacher}</div>
+            <div class="session-teacher">
+              ${s.teacher}
+              ${live ? '<span class="live-badge"><span class="live-dot"></span>LIVE</span>' : ''}
+            </div>
             <div class="session-activity">${s.activity || 'No activity listed'}</div>
           </div>
           <a class="session-zoom" href="${s.zoom_link}" target="_blank">Join Zoom ↗</a>
@@ -893,6 +795,7 @@
             <button class="edit-btn" onclick="openEditModal('${s.id}')">Edit</button>
             <button class="cancel-btn" onclick="cancelSession('${s.id}')">Cancel</button>
           </div>
+          ${live ? renderThread(s) : threadToggle(s)}
         </div>`;
     });
 
@@ -902,6 +805,40 @@
       <div class="slot-row">
         <div class="slot-time">${displayTime(slot)}</div>
         <div class="slot-sessions">${sessionsHtml}</div>
+      </div>`;
+  }
+
+  function isSessionLive(s) {
+    const now = new Date();
+    const dubaiNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dubai' }));
+    const [year, month, day] = s.date.split('-').map(Number);
+    const [h, m] = s.time.split(':').map(Number);
+    const sessionStart = new Date(year, month - 1, day, h, m, 0);
+    const sessionEnd = new Date(sessionStart.getTime() + 15 * 60 * 1000);
+    return dubaiNow >= sessionStart && dubaiNow < sessionEnd;
+  }
+
+  function threadToggle(s) {
+    return `<button class="thread-toggle-btn" onclick="openThread('${s.id}')">💬 Show messages</button>`;
+  }
+
+  function renderThread(s) {
+    return `
+      <div class="session-thread open" id="thread-${s.id}" style="width:100%">
+        <div class="thread-messages" id="thread-msgs-${s.id}">
+          <div class="thread-empty">Be the first to cheer ${s.teacher.split(' ').pop()} on 🌟</div>
+        </div>
+        <div class="thread-input-row">
+          <input class="thread-name-input" id="thread-name-${s.id}"
+            placeholder="Your name"
+            value="${localStorage.getItem('redwood-chat-username') || ''}"
+            oninput="localStorage.setItem('redwood-chat-username', this.value)" />
+          <input class="thread-msg-input" id="thread-input-${s.id}"
+            placeholder="Cheer ${s.teacher.split(' ').pop()} on — she can see this! 💚"
+            maxlength="200"
+            onkeydown="if(event.key==='Enter')sendThreadMessage('${s.id}')" />
+          <button class="thread-send-btn" onclick="sendThreadMessage('${s.id}')">Send 🌱</button>
+        </div>
       </div>`;
   }
 
@@ -1050,84 +987,106 @@
     if (e.target === this) closeModal();
   });
 
-  // --- CHAT ---
-  let chatMessages = [];
-  let chatUsername = localStorage.getItem('redwood-chat-username') || '';
-  let lastMessageId = null;
+  // --- SESSION ENCOURAGEMENT THREADS ---
+  const threadCache = {}; // sessionId -> messages[]
+  const threadPollers = {}; // sessionId -> intervalId
 
-  function initChat() {
-    const input = document.getElementById('chat-username');
-    input.value = chatUsername;
-    input.addEventListener('change', () => {
-      chatUsername = input.value.trim();
-      localStorage.setItem('redwood-chat-username', chatUsername);
-    });
-    document.getElementById('chat-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-    });
-    loadChat();
-    setInterval(loadChat, 10000);
-  }
-
-  async function loadChat() {
-    try {
-      const res = await fetch(`${WORKER_URL}/chat`);
-      const messages = await res.json();
-      if (messages.length !== chatMessages.length) {
-        chatMessages = messages;
-        renderChat();
-      }
-    } catch { /* silent fail on chat */ }
-  }
-
-  function renderChat() {
-    const container = document.getElementById('chat-messages');
-    if (chatMessages.length === 0) {
-      container.innerHTML = '<div class="chat-empty">No messages yet. Say hello 👋</div>';
+  function openThread(sessionId) {
+    // For non-live sessions, toggle a collapsed thread view
+    const existing = document.getElementById(`thread-${sessionId}`);
+    if (existing) {
+      existing.classList.toggle('open');
       return;
     }
-    const myName = document.getElementById('chat-username').value.trim();
-    container.innerHTML = chatMessages.map(m => {
-      const mine = m.username === myName;
+    // Inject thread below the session card
+    const card = document.querySelector(`[data-session-id="${sessionId}"]`);
+    if (!card) return;
+    const threadHtml = `
+      <div class="session-thread open" id="thread-${sessionId}" style="width:100%">
+        <div class="thread-messages" id="thread-msgs-${sessionId}">
+          <div class="thread-empty">No messages yet for this session.</div>
+        </div>
+      </div>`;
+    card.insertAdjacentHTML('beforeend', threadHtml);
+    loadThreadMessages(sessionId);
+  }
+
+  async function loadThreadMessages(sessionId) {
+    try {
+      const res = await fetch(`${WORKER_URL}/chat/${sessionId}`);
+      const messages = await res.json();
+      threadCache[sessionId] = messages;
+      renderThreadMessages(sessionId);
+    } catch { /* silent */ }
+  }
+
+  function renderThreadMessages(sessionId) {
+    const container = document.getElementById(`thread-msgs-${sessionId}`);
+    if (!container) return;
+    const messages = threadCache[sessionId] || [];
+    if (messages.length === 0) {
+      const session = sessions.find(s => s.id === sessionId);
+      const firstName = session ? session.teacher.split(' ').pop() : 'them';
+      container.innerHTML = `<div class="thread-empty">Be the first to cheer ${firstName} on 🌟</div>`;
+      return;
+    }
+    container.innerHTML = messages.map(m => {
       const time = new Date(m.sent_at).toLocaleTimeString('en-GB', {
-        hour: '2-digit', minute: '2-digit',
-        timeZone: tzOffset === DUBAI_OFFSET ? 'Asia/Dubai' : 'UTC'
+        hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Dubai'
       });
-      return `
-        <div class="chat-msg ${mine ? 'mine' : ''}">
-          <div class="chat-msg-header">
-            <span class="chat-msg-name">${m.username}</span>
-            <span class="chat-msg-time">${time}</span>
-          </div>
-          <div class="chat-msg-text">${m.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
-        </div>`;
+      return `<div class="thread-msg">
+        <span class="thread-msg-name">${m.username}</span>${m.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}<span class="thread-msg-time">${time}</span>
+      </div>`;
     }).join('');
-    // Scroll to bottom
     container.scrollTop = container.scrollHeight;
   }
 
-  async function sendMessage() {
-    const username = document.getElementById('chat-username').value.trim();
-    const messageEl = document.getElementById('chat-input');
-    const message = messageEl.value.trim();
-    if (!username) { showToast('Enter your name in the chat first.', 'error'); return; }
+  async function sendThreadMessage(sessionId) {
+    const nameEl = document.getElementById(`thread-name-${sessionId}`);
+    const msgEl = document.getElementById(`thread-input-${sessionId}`);
+    const username = nameEl?.value.trim();
+    const message = msgEl?.value.trim();
+    if (!username) { showToast('Add your name first.', 'error'); nameEl?.focus(); return; }
     if (!message) return;
-    const btn = document.getElementById('chat-send-btn');
-    btn.disabled = true;
+
+    const btn = document.querySelector(`#thread-${sessionId} .thread-send-btn`);
+    if (btn) btn.disabled = true;
+
     try {
-      const res = await fetch(`${WORKER_URL}/chat`, {
+      const res = await fetch(`${WORKER_URL}/chat/${sessionId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, message }),
       });
       if (!res.ok) throw new Error();
-      messageEl.value = '';
-      await loadChat();
+      if (msgEl) msgEl.value = '';
+      await loadThreadMessages(sessionId);
     } catch {
-      showToast('Could not send message. Try again.', 'error');
+      showToast('Could not send. Try again.', 'error');
     } finally {
-      btn.disabled = false;
+      if (btn) btn.disabled = false;
     }
+  }
+
+  // Poll live session threads every 10 seconds
+  function startLivePolling() {
+    setInterval(() => {
+      sessions.forEach(s => {
+        if (isSessionLive(s) && document.getElementById(`thread-msgs-${s.id}`)) {
+          loadThreadMessages(s.id);
+        }
+      });
+    }, 10000);
+  }
+
+  function initChat() {
+    // Load messages for any thread already visible after render
+    setTimeout(() => {
+      sessions.forEach(s => {
+        if (isSessionLive(s)) loadThreadMessages(s.id);
+      });
+      startLivePolling();
+    }, 500);
   }
 </script>
 </body>

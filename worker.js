@@ -177,8 +177,10 @@ export default {
       });
     }
 
-    // GET /chat — fetch all chat messages
-    if (request.method === "GET" && url.pathname === "/chat") {
+    // GET /chat/:sessionId — fetch messages for a specific session
+    if (request.method === "GET" && url.pathname.startsWith("/chat/")) {
+      const sessionId = url.pathname.split("/chat/")[1];
+
       const notion_res = await fetch(
         `https://api.notion.com/v1/databases/${CHAT_DB_ID}/query`,
         {
@@ -189,6 +191,10 @@ export default {
             "Notion-Version": "2022-06-28",
           },
           body: JSON.stringify({
+            filter: {
+              property: "Session ID",
+              rich_text: { equals: sessionId },
+            },
             sorts: [{ property: "Sent At", direction: "ascending" }],
             page_size: 100,
           }),
@@ -216,8 +222,9 @@ export default {
       });
     }
 
-    // POST /chat — send a chat message
-    if (request.method === "POST" && url.pathname === "/chat") {
+    // POST /chat/:sessionId — send a message for a specific session
+    if (request.method === "POST" && url.pathname.startsWith("/chat/")) {
+      const sessionId = url.pathname.split("/chat/")[1];
       const body = await request.json();
       const { username, message } = body;
 
@@ -233,6 +240,7 @@ export default {
         properties: {
           Username: { title: [{ text: { content: username } }] },
           Message: { rich_text: [{ text: { content: message } }] },
+          "Session ID": { rich_text: [{ text: { content: sessionId } }] },
           "Sent At": { date: { start: new Date().toISOString() } },
         },
       };
