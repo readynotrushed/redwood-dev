@@ -662,9 +662,9 @@
   }
 
   const AFTERNOON_SLOTS = [];
-  for (let h = 14; h <= 15; h++) {
+  for (let h = 14; h <= 20; h++) {
     for (let m = 0; m < 60; m += 15) {
-      if (h === 15 && m > 30) break;
+      if (h === 20 && m > 30) break;
       AFTERNOON_SLOTS.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
     }
   }
