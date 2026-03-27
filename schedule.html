@@ -121,6 +121,22 @@
     transition: all 0.2s;
   }
   .refresh-btn:hover { border-color: var(--leaf); color: var(--leaf); }
+  .header-right { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; justify-content: flex-end; }
+  .tz-wrapper { display: flex; align-items: center; gap: 0.4rem; }
+  .tz-label { font-size: 0.75rem; color: var(--bark-light); white-space: nowrap; }
+  .tz-select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    color: var(--bark);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.35rem 0.6rem;
+    background: var(--cream);
+    cursor: pointer;
+    outline: none;
+    max-width: 160px;
+  }
+  .tz-select:focus { border-color: var(--leaf); }
 
   .main { padding: 1.5rem; max-width: 700px; margin: 0 auto; }
 
@@ -269,7 +285,26 @@
         <small id="last-updated-header">Loading…</small>
       </div>
     </div>
-    <button class="refresh-btn" onclick="loadSessions()">↻ Refresh</button>
+    <div class="header-right">
+      <div class="tz-wrapper">
+        <span class="tz-label">🕐</span>
+        <select class="tz-select" id="tz-select" onchange="onTzChange()">
+          <option value="4">Dubai (GMT+4)</option>
+          <option value="0">London (GMT+0)</option>
+          <option value="1">Paris / Rome (GMT+1)</option>
+          <option value="2">Cairo / Athens (GMT+2)</option>
+          <option value="3">Moscow (GMT+3)</option>
+          <option value="5">Karachi (GMT+5)</option>
+          <option value="5.5">Mumbai (GMT+5:30)</option>
+          <option value="6">Dhaka (GMT+6)</option>
+          <option value="7">Bangkok (GMT+7)</option>
+          <option value="8">Singapore (GMT+8)</option>
+          <option value="-5">New York (GMT-5)</option>
+          <option value="-8">Los Angeles (GMT-8)</option>
+        </select>
+      </div>
+      <button class="refresh-btn" onclick="loadSessions()">↻ Refresh</button>
+    </div>
   </header>
 
   <div class="main">
@@ -284,8 +319,29 @@
 </div>
 
 <script>
-  const WORKER_URL = 'https://redwood.lunamargherita.com';
+  const WORKER_URL = 'https://api.lunamargherita.com';
   const PASSWORD = 'test2';
+  const DUBAI_OFFSET = 4;
+  let tzOffset = 4;
+
+  function convertTime(timeStr, fromOffset, toOffset) {
+    const [h, m] = timeStr.split(':').map(Number);
+    const totalMins = h * 60 + m - (fromOffset * 60) + (toOffset * 60);
+    const adjMins = ((totalMins % 1440) + 1440) % 1440;
+    const newH = Math.floor(adjMins / 60);
+    const newM = adjMins % 60;
+    return `${String(newH).padStart(2,'0')}:${String(newM).padStart(2,'0')}`;
+  }
+
+  function displayTime(dubaiTime) {
+    if (tzOffset === DUBAI_OFFSET) return dubaiTime;
+    return convertTime(dubaiTime, DUBAI_OFFSET, tzOffset);
+  }
+
+  function onTzChange() {
+    tzOffset = parseFloat(document.getElementById('tz-select').value);
+    renderSchedule();
+  }
 
   const CORRECT_DAYS = [
     { label: 'Mon 30 Mar', date: '2026-03-30' },
@@ -376,14 +432,16 @@
 
     let html = '';
 
+    const tzLabel = tzOffset === DUBAI_OFFSET ? 'Dubai time' : `your local time (GMT${tzOffset >= 0 ? '+' : ''}${tzOffset})`;
+
     if (morning.length) {
-      html += `<div class="section-label">Morning sessions</div><div class="sessions-list">`;
+      html += `<div class="section-label">Morning · ${tzLabel}</div><div class="sessions-list">`;
       morning.forEach(s => { html += sessionCardHtml(s, false); });
       html += `</div>`;
     }
 
     if (afternoon.length) {
-      html += `<div class="section-label">Afternoon sessions 🌍</div><div class="sessions-list">`;
+      html += `<div class="section-label">Afternoon · ${tzLabel} 🌍</div><div class="sessions-list">`;
       afternoon.forEach(s => { html += sessionCardHtml(s, true); });
       html += `</div>`;
     }
@@ -394,7 +452,7 @@
   function sessionCardHtml(s, isAfternoon) {
     return `
       <div class="session-card">
-        <div class="session-time-badge ${isAfternoon ? 'afternoon' : ''}">${s.time}</div>
+        <div class="session-time-badge ${isAfternoon ? 'afternoon' : ''}">${displayTime(s.time)}</div>
         <div class="session-info">
           <div class="session-teacher">${s.teacher}</div>
           <div class="session-activity">${s.activity || 'Drop in and see!'}</div>
