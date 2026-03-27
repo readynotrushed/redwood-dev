@@ -206,6 +206,10 @@
     border-color: #e74c3c;
     box-shadow: 0 0 0 3px rgba(231,76,60,0.08);
   }
+  .session-card.is-past {
+    opacity: 0.5;
+    filter: grayscale(0.4);
+  }
   .session-card-actions {
     display: flex;
     align-items: center;
@@ -558,33 +562,51 @@
     return dubaiNow >= sessionStart && dubaiNow < sessionEnd;
   }
 
-  function sessionCardHtml(s, isAfternoon) {
-    const live = isLive(s);
-    const gcalUrl = buildGcalUrl(s);
-    const popupId = `cal-popup-${s.id}`;
-    return `
-      <div class="session-card${live ? ' is-live' : ''}">
-        <div class="session-time-badge ${isAfternoon ? 'afternoon' : ''}">${displayTime(s.time)}</div>
-        <div class="session-info">
-          <div class="session-teacher">
-            ${s.teacher}
-            ${live ? '<span class="live-badge"><span class="live-dot"></span>LIVE</span>' : ''}
-          </div>
-          <div class="session-activity">${s.activity || 'Drop in and see!'}</div>
-        </div>
-        <div class="session-card-actions">
-          <a class="zoom-btn" href="${s.zoom_link}" target="_blank">Join ↗</a>
-          <div style="position:relative">
-            <button class="add-cal-btn" onclick="toggleCalPopup('${popupId}', event)">📅 Add to calendar</button>
-            <div class="cal-popup" id="${popupId}">
-              <button class="cal-popup-item" onclick='downloadIcs(${JSON.stringify(s).replace(/'/g, "&#39;")})'>📱 iCal / Apple Calendar</button>
-              <a class="cal-popup-item" href="${gcalUrl}" target="_blank">🗓 Google Calendar</a>
-            </div>
-          </div>
-        </div>
-      </div>`;
-  }
+  function isPast(s) {
+  const now = new Date();
+  const dubaiNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dubai' }));
+  const [year, month, day] = s.date.split('-').map(Number);
+  const [h, m] = s.time.split(':').map(Number);
+  const sessionEnd = new Date(year, month - 1, day, h, m + 15, 0);
+  return dubaiNow >= sessionEnd;
+}
 
+function sessionCardHtml(s, isAfternoon) {
+  const live = isLive(s);
+  const past = isPast(s);
+  const gcalUrl = buildGcalUrl(s);
+  const popupId = `cal-popup-${s.id}`;
+
+  const joinBtn = !past
+    ? `<a class="zoom-btn" href="${s.zoom_link}" target="_blank">Join ↗</a>`
+    : '';
+
+  const calBtn = !past && !live
+    ? `<div style="position:relative">
+         <button class="add-cal-btn" onclick="toggleCalPopup('${popupId}', event)">📅 Add to calendar</button>
+         <div class="cal-popup" id="${popupId}">
+           <button class="cal-popup-item" onclick='downloadIcs(${JSON.stringify(s).replace(/'/g, "&#39;")})'>📱 iCal / Apple Calendar</button>
+           <a class="cal-popup-item" href="${gcalUrl}" target="_blank">🗓 Google Calendar</a>
+         </div>
+       </div>`
+    : '';
+
+  return `
+    <div class="session-card${live ? ' is-live' : ''}${past ? ' is-past' : ''}">
+      <div class="session-time-badge ${isAfternoon ? 'afternoon' : ''}">${displayTime(s.time)}</div>
+      <div class="session-info">
+        <div class="session-teacher">
+          ${s.teacher}
+          ${live ? '<span class="live-badge"><span class="live-dot"></span>LIVE</span>' : ''}
+        </div>
+        <div class="session-activity">${s.activity || 'Drop in and see!'}</div>
+      </div>
+      <div class="session-card-actions">
+        ${joinBtn}
+        ${calBtn}
+      </div>
+    </div>`;
+}
   function toggleCalPopup(id, e) {
     e.stopPropagation();
     const popup = document.getElementById(id);
