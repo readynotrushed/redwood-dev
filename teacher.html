@@ -607,7 +607,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const WORKER_URL = 'https://redwood-dev.lunamargherita.com';
+  const WORKER_URL = 'https://redwood.lunamargherita.com';
   const PASSWORD = 'test1';
   const DUBAI_OFFSET = 4; // Dubai is GMT+4
   let tzOffset = 4; // current selected offset, default Dubai
@@ -727,11 +727,22 @@
   }
 
   // --- LOAD SESSIONS ---
+  let livePollingStarted = false;
+
   async function loadSessions() {
     try {
       const res = await fetch(`${WORKER_URL}/sessions`);
       sessions = await res.json();
       renderSchedule();
+      // Load thread messages for any live sessions after render
+      sessions.forEach(s => {
+        if (isSessionLive(s)) loadThreadMessages(s.id);
+      });
+      // Start polling once, after first successful load
+      if (!livePollingStarted) {
+        livePollingStarted = true;
+        startLivePolling();
+      }
     } catch (e) {
       document.getElementById('schedule').innerHTML = '<div class="loading">Could not load sessions. Check Worker URL.</div>';
     }
@@ -1106,13 +1117,8 @@
   }
 
   function initChat() {
-    // Load messages for any thread already visible after render
-    setTimeout(() => {
-      sessions.forEach(s => {
-        if (isSessionLive(s)) loadThreadMessages(s.id);
-      });
-      startLivePolling();
-    }, 500);
+    // Sessions load and polling are handled in loadSessions
+    // initChat is kept for future chat setup if needed
   }
 </script>
 </body>
