@@ -691,10 +691,11 @@
       document.getElementById('login-error').style.display = 'block';
     }
   }
-  document.getElementById('password-input')document.getElementById('login-btn').addEventListener('click', checkPassword);
-document.getElementById('password-input').focus();.addEventListener('keydown', e => {
+ document.getElementById('login-btn').addEventListener('click', checkPassword);
+  document.getElementById('password-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') checkPassword();
   });
+  document.getElementById('password-input').focus();
 
   // --- INIT ---
   function init() {
@@ -827,15 +828,6 @@ document.getElementById('password-input').focus();.addEventListener('keydown', e
       </div>`;
   });
 
-  sessionsHtml += `<div class="empty-slot" onclick="openModal('${date}','${slot}')">+ Add session</div>`;
-
-  return `
-    <div class="slot-row">
-      <div class="slot-time">${displayTime(slot)}</div>
-      <div class="slot-sessions">${sessionsHtml}</div>
-    </div>`;
-}
-
 function threadToggle(s) {
   return `<button class="thread-toggle-btn" onclick="openThread('${s.id}')">💬 Show messages</button>`;
 }
@@ -881,12 +873,7 @@ function threadToggle(s) {
     const sessionEnd = new Date(year, month - 1, day, h, m + 15, 0);
     return dubaiNow >= sessionEnd;
   }
-
-  function threadToggle(s) {
-    if (!isSessionPast(s)) return ''; // upcoming — no thread
-    return `<button class="thread-toggle-btn" onclick="openThread('${s.id}')">💬 Show messages</button>`;
-  }
-
+  
   function renderThread(s) {
     const firstName = s.teacher.split(' ').pop();
     const placeholder = getPlaceholder(firstName);
