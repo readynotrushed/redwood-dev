@@ -81,6 +81,7 @@
   }
   .login-card button:hover { background: var(--bark-light); }
   .login-error { color: var(--red); font-size: 0.85rem; margin-top: 0.75rem; display: none; }
+  
 
   /* MAIN APP */
   #app { display: none; }
@@ -211,6 +212,7 @@
   .session-card:hover { box-shadow: 0 2px 12px var(--shadow); }
   .session-card.mine { border-color: var(--leaf); background: var(--leaf-light); }
   .session-card.is-live { border-color: #e74c3c; box-shadow: 0 0 0 3px rgba(231,76,60,0.08); }
+  .session-card.is-past { opacity: 0.5; filter: grayscale(0.4);}
   .live-badge {
     display: inline-flex;
     align-items: center;
@@ -791,26 +793,51 @@
   }
 
   function renderSlotRow(slot, slotSessions, date) {
-    let sessionsHtml = '';
-    slotSessions.forEach(s => {
-      const live = isSessionLive(s);
-      sessionsHtml += `
-        <div class="session-card${live ? ' is-live' : ''}">
-          <div class="session-info">
-            <div class="session-teacher">
-              ${s.teacher}
-              ${live ? '<span class="live-badge"><span class="live-dot"></span>LIVE</span>' : ''}
-            </div>
-            <div class="session-activity">${s.activity || 'No activity listed'}</div>
+  let sessionsHtml = '';
+  slotSessions.forEach(s => {
+    const live = isSessionLive(s);
+    const past = isSessionPast(s);
+
+    const joinBtn = !past
+      ? `<a class="session-zoom" href="${s.zoom_link}" target="_blank">Join Zoom ↗</a>`
+      : '';
+
+    const actions = !past
+      ? `<div class="card-actions">
+           <button class="edit-btn" onclick="openEditModal('${s.id}')">Edit</button>
+           <button class="cancel-btn" onclick="cancelSession('${s.id}')">Cancel</button>
+         </div>`
+      : '';
+
+    const thread = live ? renderThread(s) : (past ? threadToggle(s) : '');
+
+    sessionsHtml += `
+      <div class="session-card${live ? ' is-live' : ''}${past ? ' is-past' : ''}">
+        <div class="session-info">
+          <div class="session-teacher">
+            ${s.teacher}
+            ${live ? '<span class="live-badge"><span class="live-dot"></span>LIVE</span>' : ''}
           </div>
-          <a class="session-zoom" href="${s.zoom_link}" target="_blank">Join Zoom ↗</a>
-          <div class="card-actions">
-            <button class="edit-btn" onclick="openEditModal('${s.id}')">Edit</button>
-            <button class="cancel-btn" onclick="cancelSession('${s.id}')">Cancel</button>
-          </div>
-          ${live ? renderThread(s) : threadToggle(s)}
-        </div>`;
-    });
+          <div class="session-activity">${s.activity || 'No activity listed'}</div>
+        </div>
+        ${joinBtn}
+        ${actions}
+        ${thread}
+      </div>`;
+  });
+
+  sessionsHtml += `<div class="empty-slot" onclick="openModal('${date}','${slot}')">+ Add session</div>`;
+
+  return `
+    <div class="slot-row">
+      <div class="slot-time">${displayTime(slot)}</div>
+      <div class="slot-sessions">${sessionsHtml}</div>
+    </div>`;
+}
+
+function threadToggle(s) {
+  return `<button class="thread-toggle-btn" onclick="openThread('${s.id}')">💬 Show messages</button>`;
+}
 
     sessionsHtml += `<div class="empty-slot" onclick="openModal('${date}','${slot}')">+ Add session</div>`;
 
