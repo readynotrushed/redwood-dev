@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redwood — Teacher Schedule</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fdf8f2;
+    --bark: #3d2b1f;
+    --bark-light: #6b4c3b;
+    --leaf: #4a7c59;
+    --leaf-light: #e8f0eb;
+    --sun: #e8a020;
+    --sun-light: #fef3e0;
+    --red: #c0392b;
+    --red-light: #fdecea;
+    --border: #e2d9d0;
+    --shadow: rgba(61,43,31,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--bark);
+    min-height: 100vh;
+  }
+
+  /* LOGIN */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .login-card {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 8px 40px var(--shadow);
+    text-align: center;
+  }
+  .login-card .tree { font-size: 3rem; margin-bottom: 1rem; }
+  .login-card h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem;
+    color: var(--bark);
+    margin-bottom: 0.25rem;
+  }
+  .login-card p { color: var(--bark-light); font-size: 0.9rem; margin-bottom: 2rem; }
+  .login-card input {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    color: var(--bark);
+    background: var(--cream);
+    margin-bottom: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .login-card input:focus { border-color: var(--leaf); }
+  .login-card button {
+    width: 100%;
+    padding: 0.9rem;
+    background: var(--bark);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .login-card button:hover { background: var(--bark-light); }
+  .login-error { color: var(--red); font-size: 0.85rem; margin-top: 0.75rem; display: none; }
+
+  /* MAIN APP */
+  #app { display: none; }
+  header {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 0.75rem; }
+  .header-left span { font-size: 1.5rem; }
+  .header-left h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: var(--bark);
+  }
+  .header-left small { font-size: 0.75rem; color: var(--bark-light); display: block; }
+  .add-btn {
+    background: var(--leaf);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0.6rem 1.2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .add-btn:hover { background: #3d6b4a; }
+
+  .main { padding: 2rem; max-width: 900px; margin: 0 auto; }
+
+  /* DAY TABS */
+  .day-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+  }
+  .day-tab {
+    padding: 0.5rem 1.2rem;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    color: var(--bark-light);
+  }
+  .day-tab.active {
+    background: var(--bark);
+    color: white;
+    border-color: var(--bark);
+  }
+  .day-tab:hover:not(.active) { border-color: var(--bark-light); color: var(--bark); }
+
+  /* SCHEDULE GRID */
+  .schedule { display: flex; flex-direction: column; gap: 0.5rem; }
+  .slot-row {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 0.75rem;
+    align-items: start;
+  }
+  .slot-time {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--bark-light);
+    padding-top: 0.6rem;
+    text-align: right;
+  }
+  .slot-sessions { display: flex; flex-direction: column; gap: 0.4rem; }
+  .session-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    transition: box-shadow 0.2s;
+  }
+  .session-card:hover { box-shadow: 0 2px 12px var(--shadow); }
+  .session-card.mine { border-color: var(--leaf); background: var(--leaf-light); }
+  .session-info { flex: 1; }
+  .session-teacher { font-weight: 500; font-size: 0.9rem; color: var(--bark); }
+  .session-activity { font-size: 0.8rem; color: var(--bark-light); margin-top: 0.1rem; }
+  .session-zoom {
+    font-size: 0.75rem;
+    color: var(--leaf);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .session-zoom:hover { text-decoration: underline; }
+  .card-actions { display: flex; gap: 0.4rem; }
+  .cancel-btn, .edit-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .cancel-btn { color: var(--red); }
+  .cancel-btn:hover { background: var(--red-light); border-color: var(--red); }
+  .edit-btn { color: var(--bark-light); }
+  .edit-btn:hover { background: var(--sun-light); border-color: var(--sun); color: var(--sun); }
+  .empty-slot {
+    border: 1.5px dashed var(--border);
+    border-radius: 12px;
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+    color: var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .empty-slot:hover {
+    border-color: var(--leaf);
+    color: var(--leaf);
+    background: var(--leaf-light);
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(61,43,31,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 1rem;
+    display: none;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+  .modal h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    margin-bottom: 0.25rem;
+  }
+  .modal .slot-label {
+    font-size: 0.85rem;
+    color: var(--bark-light);
+    margin-bottom: 1.5rem;
+  }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--bark-light);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .form-group select,
+  .form-group input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--bark);
+    background: var(--cream);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group select:focus,
+  .form-group input:focus { border-color: var(--leaf); }
+  .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+  .btn-primary {
+    flex: 1;
+    padding: 0.85rem;
+    background: var(--leaf);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: #3d6b4a; }
+  .btn-primary:disabled { background: var(--border); cursor: not-allowed; }
+  .btn-secondary {
+    padding: 0.85rem 1.5rem;
+    background: none;
+    color: var(--bark-light);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--bark-light); color: var(--bark); }
+
+  .loading { text-align: center; padding: 3rem; color: var(--bark-light); font-size: 0.9rem; }
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--bark);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    transition: transform 0.3s;
+    z-index: 300;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: var(--leaf); }
+  .toast.error { background: var(--red); }
+
+  @media (max-width: 600px) {
+    .main { padding: 1rem; }
+    header { padding: 1rem; }
+    .slot-row { grid-template-columns: 60px 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="tree">🌳</div>
+    <h1>Redwood Sessions</h1>
+    <p>Teacher booking portal</p>
+    <input type="password" id="password-input" placeholder="Enter password" />
+    <button onclick="checkPassword()">Enter</button>
+    <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <header>
+    <div class="header-left">
+      <span>🌳</span>
+      <div>
+        <h1>Redwood Sessions</h1>
+        <small>Teacher Schedule</small>
+      </div>
+    </div>
+    <button class="add-btn" onclick="openModal()">+ Add session</button>
+  </header>
+
+  <div class="main">
+    <div class="day-tabs" id="day-tabs"></div>
+    <div class="schedule" id="schedule">
+      <div class="loading">Loading sessions…</div>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2>Book a session</h2>
+    <div class="slot-label" id="modal-slot-label">Choose a slot below</div>
+    <div class="form-group">
+      <label>Your name</label>
+      <select id="teacher-select">
+        <option value="">Select teacher…</option>
+        <option>Ms Ghita</option>
+        <option>Ms Nour</option>
+        <option>Ms Emy</option>
+        <option>Ms Ashley</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Day</label>
+      <select id="modal-day-select" onchange="updateModalSlots()">
+        <option value="">Select day…</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Time slot</label>
+      <select id="modal-time-select">
+        <option value="">Select time…</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Activity <span style="font-weight:300;text-transform:none">(e.g. Songs, Story, Phonics)</span></label>
+      <input type="text" id="activity-input" placeholder="What are you planning?" maxlength="60" />
+    </div>
+    <div class="form-group">
+      <label>Zoom link</label>
+      <input type="url" id="zoom-input" placeholder="https://zoom.us/j/…" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" id="submit-btn" onclick="submitSession()">Book slot</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const WORKER_URL = 'https://redwood.lunamargherita.com';
+  const PASSWORD = 'test1';
+
+  // --- DATES & SLOTS ---
+  const DAYS = [
+    { label: 'Mon 31 Mar', date: '2025-03-31' },  // will fix to 2025
+    { label: 'Tue 1 Apr', date: '2025-04-01' },
+    { label: 'Wed 2 Apr', date: '2025-04-02' },
+    { label: 'Thu 3 Apr', date: '2025-04-03' },
+    { label: 'Fri 4 Apr', date: '2025-04-04' },
+  ];
+
+  // Fix dates to 2026 -- note: build uses 2026
+  DAYS.forEach(d => { d.date = d.date.replace('2025', '2026'); });
+  // Correct labels
+  const CORRECT_DAYS = [
+    { label: 'Mon 30 Mar', date: '2026-03-30' },
+    { label: 'Tue 31 Mar', date: '2026-03-31' },
+    { label: 'Wed 1 Apr', date: '2026-04-01' },
+    { label: 'Thu 2 Apr', date: '2026-04-02' },
+    { label: 'Fri 3 Apr', date: '2026-04-03' },
+  ];
+
+  const MORNING_SLOTS = [];
+  for (let h = 9; h <= 12; h++) {
+    for (let m = 0; m < 60; m += 15) {
+      if (h === 12 && m > 30) break;
+      MORNING_SLOTS.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
+    }
+  }
+
+  const AFTERNOON_SLOTS = [];
+  for (let h = 14; h <= 15; h++) {
+    for (let m = 0; m < 60; m += 15) {
+      if (h === 15 && m > 30) break;
+      AFTERNOON_SLOTS.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
+    }
+  }
+
+  const ALL_SLOTS = [...MORNING_SLOTS, ...AFTERNOON_SLOTS];
+
+  // --- STATE ---
+  let sessions = [];
+  let activeDayIndex = 0;
+  let modalPreselectedSlot = null;
+  let editingSessionId = null; // null = new booking, string = editing existing
+
+  // --- AUTH ---
+  function checkPassword() {
+    const val = document.getElementById('password-input').value;
+    if (val === PASSWORD) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      init();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  }
+  document.getElementById('password-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkPassword();
+  });
+
+  // --- INIT ---
+  function init() {
+    buildDayTabs();
+    buildModalDayOptions();
+    loadSessions();
+  }
+
+  function buildDayTabs() {
+    const container = document.getElementById('day-tabs');
+    CORRECT_DAYS.forEach((day, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'day-tab' + (i === 0 ? ' active' : '');
+      btn.textContent = day.label;
+      btn.onclick = () => { activeDayIndex = i; setActiveTab(i); renderSchedule(); };
+      container.appendChild(btn);
+    });
+  }
+
+  function setActiveTab(i) {
+    document.querySelectorAll('.day-tab').forEach((t, idx) => {
+      t.classList.toggle('active', idx === i);
+    });
+  }
+
+  function buildModalDayOptions() {
+    const sel = document.getElementById('modal-day-select');
+    CORRECT_DAYS.forEach((day, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = day.label;
+      sel.appendChild(opt);
+    });
+  }
+
+  // --- LOAD SESSIONS ---
+  async function loadSessions() {
+    try {
+      const res = await fetch(`${WORKER_URL}/sessions`);
+      sessions = await res.json();
+      renderSchedule();
+    } catch (e) {
+      document.getElementById('schedule').innerHTML = '<div class="loading">Could not load sessions. Check Worker URL.</div>';
+    }
+  }
+
+  // --- RENDER SCHEDULE ---
+  function renderSchedule() {
+    const day = CORRECT_DAYS[activeDayIndex];
+    const daySessions = sessions.filter(s => s.date === day.date);
+    const container = document.getElementById('schedule');
+
+    // Group sessions by time
+    const byTime = {};
+    daySessions.forEach(s => {
+      if (!byTime[s.time]) byTime[s.time] = [];
+      byTime[s.time].push(s);
+    });
+
+    let html = '';
+
+    // Morning header
+    html += `<div style="font-size:0.75rem;font-weight:600;color:var(--bark-light);text-transform:uppercase;letter-spacing:0.08em;padding:0.5rem 0 0.25rem 88px">Morning</div>`;
+
+    MORNING_SLOTS.forEach(slot => {
+      html += renderSlotRow(slot, byTime[slot] || [], day.date);
+    });
+
+    html += `<div style="font-size:0.75rem;font-weight:600;color:var(--bark-light);text-transform:uppercase;letter-spacing:0.08em;padding:1rem 0 0.25rem 88px">Afternoon</div>`;
+
+    AFTERNOON_SLOTS.forEach(slot => {
+      html += renderSlotRow(slot, byTime[slot] || [], day.date);
+    });
+
+    container.innerHTML = html;
+  }
+
+  function renderSlotRow(slot, slotSessions, date) {
+    let sessionsHtml = '';
+    slotSessions.forEach(s => {
+      sessionsHtml += `
+        <div class="session-card mine">
+          <div class="session-info">
+            <div class="session-teacher">${s.teacher}</div>
+            <div class="session-activity">${s.activity || 'No activity listed'}</div>
+          </div>
+          <a class="session-zoom" href="${s.zoom_link}" target="_blank">Join Zoom ↗</a>
+          <div class="card-actions">
+            <button class="edit-btn" onclick="openEditModal('${s.id}')">Edit</button>
+            <button class="cancel-btn" onclick="cancelSession('${s.id}')">Cancel</button>
+          </div>
+        </div>`;
+    });
+
+    sessionsHtml += `<div class="empty-slot" onclick="openModal('${date}','${slot}')">+ Add session</div>`;
+
+    return `
+      <div class="slot-row">
+        <div class="slot-time">${slot}</div>
+        <div class="slot-sessions">${sessionsHtml}</div>
+      </div>`;
+  }
+
+  // --- MODAL ---
+  function openModal(date, time) {
+    document.getElementById('modal').classList.add('open');
+
+    if (date && time) {
+      // Preselect day
+      const dayIdx = CORRECT_DAYS.findIndex(d => d.date === date);
+      if (dayIdx >= 0) {
+        document.getElementById('modal-day-select').value = dayIdx;
+        updateModalSlots();
+        document.getElementById('modal-time-select').value = time;
+        document.getElementById('modal-slot-label').textContent =
+          `${CORRECT_DAYS[dayIdx].label} at ${time}`;
+      }
+    } else {
+      document.getElementById('modal-day-select').value = activeDayIndex;
+      updateModalSlots();
+      document.getElementById('modal-slot-label').textContent = 'Choose a slot below';
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    document.getElementById('teacher-select').value = '';
+    document.getElementById('activity-input').value = '';
+    document.getElementById('zoom-input').value = '';
+    document.getElementById('modal-time-select').value = '';
+    document.getElementById('modal-day-select').value = '';
+    document.getElementById('modal-slot-label').textContent = 'Choose a slot below';
+    document.getElementById('submit-btn').textContent = 'Book slot';
+    document.querySelector('#modal h2').textContent = 'Book a session';
+    editingSessionId = null;
+  }
+
+  function openEditModal(id) {
+    const s = sessions.find(s => s.id === id);
+    if (!s) return;
+    editingSessionId = id;
+
+    document.getElementById('modal').classList.add('open');
+    document.querySelector('#modal h2').textContent = 'Edit session';
+    document.getElementById('submit-btn').textContent = 'Save changes';
+
+    // Pre-fill fields
+    document.getElementById('teacher-select').value = s.teacher;
+
+    const dayIdx = CORRECT_DAYS.findIndex(d => d.date === s.date);
+    if (dayIdx >= 0) {
+      document.getElementById('modal-day-select').value = dayIdx;
+      updateModalSlots();
+      document.getElementById('modal-time-select').value = s.time;
+      document.getElementById('modal-slot-label').textContent = `Editing: ${CORRECT_DAYS[dayIdx].label} at ${s.time}`;
+    }
+
+    document.getElementById('activity-input').value = s.activity || '';
+    document.getElementById('zoom-input').value = s.zoom_link || '';
+  }
+
+  function updateModalSlots() {
+    const dayIdx = document.getElementById('modal-day-select').value;
+    const sel = document.getElementById('modal-time-select');
+    sel.innerHTML = '<option value="">Select time…</option>';
+    ALL_SLOTS.forEach(slot => {
+      const opt = document.createElement('option');
+      opt.value = slot;
+      opt.textContent = slot + (slot >= '14:00' ? ' 🌍' : '');
+      sel.appendChild(opt);
+    });
+  }
+
+  // --- SUBMIT (new or edit) ---
+  async function submitSession() {
+    const teacher = document.getElementById('teacher-select').value;
+    const dayIdx = document.getElementById('modal-day-select').value;
+    const time = document.getElementById('modal-time-select').value;
+    const activity = document.getElementById('activity-input').value.trim();
+    const zoom_link = document.getElementById('zoom-input').value.trim();
+
+    if (!teacher || dayIdx === '' || !time || !zoom_link) {
+      showToast('Please fill in all required fields.', 'error');
+      return;
+    }
+
+    const date = CORRECT_DAYS[dayIdx].date;
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = editingSessionId ? 'Saving…' : 'Booking…';
+
+    try {
+      if (editingSessionId) {
+        // PATCH existing session
+        const res = await fetch(`${WORKER_URL}/session/${editingSessionId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date, time, teacher, activity, zoom_link }),
+        });
+        if (!res.ok) throw new Error();
+        showToast('Session updated!', 'success');
+      } else {
+        // POST new session
+        const res = await fetch(`${WORKER_URL}/session`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date, time, teacher, activity, zoom_link }),
+        });
+        if (!res.ok) throw new Error();
+        showToast('Session booked!', 'success');
+      }
+      closeModal();
+      await loadSessions();
+    } catch {
+      showToast('Something went wrong. Try again.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = editingSessionId ? 'Save changes' : 'Book slot';
+    }
+  }
+
+  // --- CANCEL ---
+  async function cancelSession(id) {
+    if (!confirm('Cancel this session?')) return;
+    try {
+      const res = await fetch(`${WORKER_URL}/session/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      showToast('Session cancelled.', 'success');
+      await loadSessions();
+    } catch {
+      showToast('Could not cancel. Try again.', 'error');
+    }
+  }
+
+  // --- TOAST ---
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // Close modal on overlay click
+  document.getElementById('modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+</script>
+</body>
+</html>

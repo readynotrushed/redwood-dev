@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redwood — Today's Sessions</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fdf8f2;
+    --bark: #3d2b1f;
+    --bark-light: #6b4c3b;
+    --leaf: #4a7c59;
+    --leaf-light: #e8f0eb;
+    --sun: #e8a020;
+    --sun-light: #fef3e0;
+    --border: #e2d9d0;
+    --shadow: rgba(61,43,31,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--bark);
+    min-height: 100vh;
+  }
+
+  /* LOGIN */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .login-card {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 8px 40px var(--shadow);
+    text-align: center;
+  }
+  .login-card .tree { font-size: 3rem; margin-bottom: 1rem; }
+  .login-card h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem;
+    color: var(--bark);
+    margin-bottom: 0.25rem;
+  }
+  .login-card p { color: var(--bark-light); font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .login-hint {
+    font-size: 0.8rem;
+    color: var(--bark-light);
+    background: var(--sun-light);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+  }
+  .login-card input {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    color: var(--bark);
+    background: var(--cream);
+    margin-bottom: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .login-card input:focus { border-color: var(--leaf); }
+  .login-card button {
+    width: 100%;
+    padding: 0.9rem;
+    background: var(--bark);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .login-card button:hover { background: var(--bark-light); }
+  .login-error { color: #c0392b; font-size: 0.85rem; margin-top: 0.75rem; display: none; }
+
+  /* MAIN */
+  #app { display: none; }
+  header {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 0.75rem; }
+  .header-left span { font-size: 1.5rem; }
+  .header-left h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+  }
+  .header-left small { font-size: 0.75rem; color: var(--bark-light); display: block; }
+  .refresh-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    color: var(--bark-light);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .refresh-btn:hover { border-color: var(--leaf); color: var(--leaf); }
+
+  .main { padding: 1.5rem; max-width: 700px; margin: 0 auto; }
+
+  /* ZOOM TIP BANNER */
+  .tip-banner {
+    background: var(--sun-light);
+    border: 1.5px solid #f0c060;
+    border-radius: 14px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--bark);
+  }
+  .tip-banner strong { color: var(--sun); }
+
+  /* DAY TABS */
+  .day-tabs {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+  }
+  .day-tab {
+    padding: 0.45rem 1rem;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: white;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    color: var(--bark-light);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .day-tab.active { background: var(--bark); color: white; border-color: var(--bark); }
+  .day-tab:hover:not(.active) { border-color: var(--bark-light); color: var(--bark); }
+
+  /* SESSION CARDS */
+  .section-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--bark-light);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 1rem 0 0.6rem;
+  }
+
+  .sessions-list { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.5rem; }
+
+  .session-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: box-shadow 0.2s, transform 0.15s;
+  }
+  .session-card:hover { box-shadow: 0 4px 16px var(--shadow); transform: translateY(-1px); }
+  .session-time-badge {
+    background: var(--leaf-light);
+    color: var(--leaf);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.4rem 0.7rem;
+    border-radius: 8px;
+    white-space: nowrap;
+    min-width: 56px;
+    text-align: center;
+  }
+  .session-time-badge.afternoon {
+    background: var(--sun-light);
+    color: var(--sun);
+  }
+  .session-info { flex: 1 }
+  .session-teacher { font-weight: 500; font-size: 0.95rem; }
+  .session-activity { font-size: 0.82rem; color: var(--bark-light); margin-top: 0.15rem; }
+  .zoom-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--leaf);
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background 0.2s;
+  }
+  .zoom-btn:hover { background: #3d6b4a; }
+
+  .empty-day {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--bark-light);
+    font-size: 0.9rem;
+  }
+  .empty-day .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+
+  .last-updated {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--border);
+    margin-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  @media (max-width: 500px) {
+    .main { padding: 1rem; }
+    header { padding: 0.8rem 1rem; }
+    .session-card { flex-wrap: wrap; }
+    .zoom-btn { width: 100%; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="tree">🌳</div>
+    <h1>Redwood Sessions</h1>
+    <p>What's on today</p>
+    <div class="login-hint">
+      💡 <strong>Zoom tip:</strong> Before joining, rename yourself in Zoom to your child's name — teachers love calling children by name!
+    </div>
+    <input type="password" id="password-input" placeholder="Enter password" />
+    <button onclick="checkPassword()">View schedule</button>
+    <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <header>
+    <div class="header-left">
+      <span>🌳</span>
+      <div>
+        <h1>Redwood Sessions</h1>
+        <small id="last-updated-header">Loading…</small>
+      </div>
+    </div>
+    <button class="refresh-btn" onclick="loadSessions()">↻ Refresh</button>
+  </header>
+
+  <div class="main">
+    <div class="tip-banner">
+      💡 <strong>Zoom tip:</strong> Rename yourself to your child's name before joining — it helps teachers call children by name, even across classes. Any Redwood child can join any session.
+    </div>
+
+    <div class="day-tabs" id="day-tabs"></div>
+    <div id="schedule"></div>
+    <div class="last-updated" id="last-updated"></div>
+  </div>
+</div>
+
+<script>
+  const WORKER_URL = 'https://redwood.lunamargherita.com';
+  const PASSWORD = 'test2';
+
+  const CORRECT_DAYS = [
+    { label: 'Mon 30 Mar', date: '2026-03-30' },
+    { label: 'Tue 31 Mar', date: '2026-03-31' },
+    { label: 'Wed 1 Apr', date: '2026-04-01' },
+    { label: 'Thu 2 Apr', date: '2026-04-02' },
+    { label: 'Fri 3 Apr', date: '2026-04-03' },
+  ];
+
+  let sessions = [];
+  let activeDayIndex = 0;
+
+  function getTodayIndex() {
+    const today = new Date().toISOString().split('T')[0];
+    const idx = CORRECT_DAYS.findIndex(d => d.date === today);
+    return idx >= 0 ? idx : 0;
+  }
+
+  function checkPassword() {
+    const val = document.getElementById('password-input').value;
+    if (val === PASSWORD) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      activeDayIndex = getTodayIndex();
+      init();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  }
+  document.getElementById('password-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkPassword();
+  });
+
+  function init() {
+    buildDayTabs();
+    loadSessions();
+    // Auto-refresh every 2 minutes
+    setInterval(loadSessions, 120000);
+  }
+
+  function buildDayTabs() {
+    const container = document.getElementById('day-tabs');
+    CORRECT_DAYS.forEach((day, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'day-tab' + (i === activeDayIndex ? ' active' : '');
+      btn.textContent = day.label;
+      btn.onclick = () => { activeDayIndex = i; setActiveTab(i); renderSchedule(); };
+      container.appendChild(btn);
+    });
+  }
+
+  function setActiveTab(i) {
+    document.querySelectorAll('.day-tab').forEach((t, idx) => t.classList.toggle('active', idx === i));
+  }
+
+  async function loadSessions() {
+    try {
+      const res = await fetch(`${WORKER_URL}/sessions`);
+      sessions = await res.json();
+      renderSchedule();
+      const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('last-updated-header').textContent = `Updated ${now}`;
+      document.getElementById('last-updated').textContent = `Last updated at ${now} — pull to refresh`;
+    } catch {
+      document.getElementById('schedule').innerHTML = '<div class="empty-day"><div class="icon">🌿</div>Could not load sessions right now. Try refreshing.</div>';
+    }
+  }
+
+  function renderSchedule() {
+    const day = CORRECT_DAYS[activeDayIndex];
+    const daySessions = sessions
+      .filter(s => s.date === day.date)
+      .sort((a, b) => a.time.localeCompare(b.time));
+
+    const container = document.getElementById('schedule');
+
+    if (daySessions.length === 0) {
+      container.innerHTML = `
+        <div class="empty-day">
+          <div class="icon">🌿</div>
+          No sessions scheduled yet for ${day.label}.<br>Check back soon — teachers are adding sessions.
+        </div>`;
+      return;
+    }
+
+    const morning = daySessions.filter(s => s.time < '14:00');
+    const afternoon = daySessions.filter(s => s.time >= '14:00');
+
+    let html = '';
+
+    if (morning.length) {
+      html += `<div class="section-label">Morning sessions</div><div class="sessions-list">`;
+      morning.forEach(s => { html += sessionCardHtml(s, false); });
+      html += `</div>`;
+    }
+
+    if (afternoon.length) {
+      html += `<div class="section-label">Afternoon sessions 🌍</div><div class="sessions-list">`;
+      afternoon.forEach(s => { html += sessionCardHtml(s, true); });
+      html += `</div>`;
+    }
+
+    container.innerHTML = html;
+  }
+
+  function sessionCardHtml(s, isAfternoon) {
+    return `
+      <div class="session-card">
+        <div class="session-time-badge ${isAfternoon ? 'afternoon' : ''}">${s.time}</div>
+        <div class="session-info">
+          <div class="session-teacher">${s.teacher}</div>
+          <div class="session-activity">${s.activity || 'Drop in and see!'}</div>
+        </div>
+        <a class="zoom-btn" href="${s.zoom_link}" target="_blank">Join ↗</a>
+      </div>`;
+  }
+</script>
+</body>
+</html>
