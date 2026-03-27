@@ -607,7 +607,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const WORKER_URL = 'https://redwood-dev.lunamargherita.com';
+  const WORKER_URL = 'https://redwood.lunamargherita.com';
   const PASSWORD = 'test1';
   const DUBAI_OFFSET = 4; // Dubai is GMT+4
   let tzOffset = 4; // current selected offset, default Dubai
@@ -818,15 +818,41 @@
     return dubaiNow >= sessionStart && dubaiNow < sessionEnd;
   }
 
+  const ENCOURAGE_PLACEHOLDERS = [
+    "Send [name] some love, she's live right now! 🌱",
+    "[name] can see this. Cheer her on 💚",
+    "15 minutes of magic. Let [name] know you're with her 🌟",
+    "Drop [name] a note, it'll make her smile mid-session ☀️",
+    "[name] is on! A little encouragement goes a long way 🍀",
+    "She's doing the thing. Tell [name] she's got this 💛",
+  ];
+
+  function getPlaceholder(firstName) {
+    const p = ENCOURAGE_PLACEHOLDERS[Math.floor(Math.random() * ENCOURAGE_PLACEHOLDERS.length)];
+    return p.replace('[name]', firstName);
+  }
+
+  function isSessionPast(s) {
+    const now = new Date();
+    const dubaiNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dubai' }));
+    const [year, month, day] = s.date.split('-').map(Number);
+    const [h, m] = s.time.split(':').map(Number);
+    const sessionEnd = new Date(year, month - 1, day, h, m + 15, 0);
+    return dubaiNow >= sessionEnd;
+  }
+
   function threadToggle(s) {
+    if (!isSessionPast(s)) return ''; // upcoming — no thread
     return `<button class="thread-toggle-btn" onclick="openThread('${s.id}')">💬 Show messages</button>`;
   }
 
   function renderThread(s) {
+    const firstName = s.teacher.split(' ').pop();
+    const placeholder = getPlaceholder(firstName);
     return `
       <div class="session-thread open" id="thread-${s.id}" style="width:100%">
         <div class="thread-messages" id="thread-msgs-${s.id}">
-          <div class="thread-empty">Be the first to cheer ${s.teacher.split(' ').pop()} on 🌟</div>
+          <div class="thread-empty">Be the first to cheer ${firstName} on 🌟</div>
         </div>
         <div class="thread-input-row">
           <input class="thread-name-input" id="thread-name-${s.id}"
@@ -834,7 +860,7 @@
             value="${localStorage.getItem('redwood-chat-username') || ''}"
             oninput="localStorage.setItem('redwood-chat-username', this.value)" />
           <input class="thread-msg-input" id="thread-input-${s.id}"
-            placeholder="Cheer ${s.teacher.split(' ').pop()} on — she can see this! 💚"
+            placeholder="${placeholder}"
             maxlength="200"
             onkeydown="if(event.key==='Enter')sendThreadMessage('${s.id}')" />
           <button class="thread-send-btn" onclick="sendThreadMessage('${s.id}')">Send 🌱</button>
