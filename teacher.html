@@ -502,7 +502,7 @@
     <h1>Redwood Sessions</h1>
     <p>Teacher booking portal</p>
     <input type="password" id="password-input" placeholder="Enter password" />
-    <button onclick="checkPassword()">Enter</button>
+    <button id="login-btn">Enter</button>
     <div class="login-error" id="login-error">Incorrect password. Try again.</div>
   </div>
 </div>
@@ -691,7 +691,8 @@
       document.getElementById('login-error').style.display = 'block';
     }
   }
-  document.getElementById('password-input').addEventListener('keydown', e => {
+  document.getElementById('password-input')document.getElementById('login-btn').addEventListener('click', checkPassword);
+document.getElementById('password-input').focus();.addEventListener('keydown', e => {
     if (e.key === 'Enter') checkPassword();
   });
 
