@@ -389,10 +389,21 @@
   }
 
   @media (max-width: 600px) {
-    .app-body { padding: 1rem; }
-    header { padding: 1rem; }
-    .slot-row { grid-template-columns: 60px 1fr; }
+  header {
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 0.8rem 1rem;
   }
+  .header-left { flex: 1 1 100%; }
+  .header-actions {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
+  .tz-select { max-width: 140px; }
+  .wa-btn span { display: inline; }
+  .app-body { padding: 1rem; }
+  .slot-row { grid-template-columns: 60px 1fr; }
+}
 </style>
 </head>
 <body>
