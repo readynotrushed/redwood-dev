@@ -512,7 +512,6 @@
 
 <script>
   const WORKER_URL = 'https://redwood-api-dev.lunamargherita.com';
-  const PASSWORD = 'redwood2026'; // change before go-live
   const DUBAI_OFFSET = 4;
   let tzOffset = 4;
 
@@ -568,15 +567,39 @@
   let editingSessionId = null;
   let selectedTeacher = '';
 
-  // --- AUTH (sessionStorage: persists across refreshes, clears when tab closes) ---
-  function checkPassword() {
+  // --- AUTH ---
+  let authToken = sessionStorage.getItem('redwood-teacher-token') || null;
+
+  async function checkPassword() {
     const val = document.getElementById('password-input').value;
-    if (val === PASSWORD) {
-      sessionStorage.setItem('redwood-teacher-auth', '1');
-      showApp();
-    } else {
+    const btn = document.getElementById('login-btn');
+    btn.disabled = true;
+    btn.textContent = 'Checking…';
+    try {
+      const res = await fetch(`${WORKER_URL}/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: val, role: 'teacher' }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        authToken = data.token;
+        sessionStorage.setItem('redwood-teacher-token', authToken);
+        showApp();
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    } catch {
+      document.getElementById('login-error').textContent = 'Connection error. Try again.';
       document.getElementById('login-error').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Enter';
     }
+  }
+
+  function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` };
   }
 
   function showApp() {
@@ -585,8 +608,7 @@
     init();
   }
 
-  // Check if already authenticated this session
-  if (sessionStorage.getItem('redwood-teacher-auth') === '1') {
+  if (authToken) {
     showApp();
   } else {
     document.getElementById('login-btn').addEventListener('click', checkPassword);
@@ -633,7 +655,7 @@
   // --- LOAD SESSIONS ---
   async function loadSessions() {
     try {
-      const res = await fetch(`${WORKER_URL}/sessions`);
+      const res = await fetch(`${WORKER_URL}/sessions`, { headers: authHeaders() });
       sessions = await res.json();
       renderSchedule();
     } catch (e) {
@@ -712,7 +734,7 @@
 
     return `
       <div class="slot-row">
-        <div class="slot-time">${displayTime(slot)}${slot >= '16:00' ? ' 🌍' : ''}</div>
+        <div class="slot-time">${displayTime(slot)}</div>
         <div class="slot-sessions">${sessionsHtml}</div>
       </div>`;
   }
@@ -789,15 +811,16 @@
   }
 
   function updateModalSlots() {
-  const sel = document.getElementById('modal-time-select');
-  sel.innerHTML = '<option value="">Select time…</option>';
-  ALL_SLOTS.forEach(slot => {
-    const opt = document.createElement('option');
-    opt.value = slot;
-    opt.textContent = slot >= '16:00' ? slot + ' 🌍' : slot;
-    sel.appendChild(opt);
-  });
-}
+    const sel = document.getElementById('modal-time-select');
+    sel.innerHTML = '<option value="">Select time…</option>';
+    ALL_SLOTS.forEach(slot => {
+      const opt = document.createElement('option');
+      opt.value = slot;
+      const isInternational = slot >= '16:00';
+      opt.textContent = slot + (slot >= '14:00' ? (isInternational ? ' 🌍' : '') : '');
+      sel.appendChild(opt);
+    });
+  }
 
   // --- SUBMIT ---
   async function submitSession() {
@@ -824,7 +847,7 @@
       if (editingSessionId) {
         const res = await fetch(`${WORKER_URL}/session/${editingSessionId}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders(),
           body: JSON.stringify({ date, time, teacher, activity, zoom_link }),
         });
         if (!res.ok) throw new Error();
@@ -832,7 +855,7 @@
       } else {
         const res = await fetch(`${WORKER_URL}/session`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders(),
           body: JSON.stringify({ date, time, teacher, activity, zoom_link }),
         });
         if (!res.ok) throw new Error();
@@ -852,7 +875,7 @@
   async function cancelSession(id) {
     if (!confirm('Cancel this session?')) return;
     try {
-      const res = await fetch(`${WORKER_URL}/session/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${WORKER_URL}/session/${id}`, { method: 'DELETE', headers: authHeaders() });
       if (!res.ok) throw new Error();
       showToast('Session cancelled.', 'success');
       await loadSessions();

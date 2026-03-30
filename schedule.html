@@ -417,7 +417,6 @@
 
 <script>
   const WORKER_URL = 'https://redwood-api-dev.lunamargherita.com';
-  const PASSWORD = 'redwood2026'; // change before go-live
   const DUBAI_OFFSET = 4;
   let tzOffset = 4;
 
@@ -457,15 +456,39 @@
     return idx >= 0 ? idx : 0;
   }
 
-  // --- AUTH (sessionStorage: persists across refreshes, clears when tab closes) ---
-  function checkPassword() {
+  // --- AUTH ---
+  let authToken = sessionStorage.getItem('redwood-parent-token') || null;
+
+  async function checkPassword() {
     const val = document.getElementById('password-input').value;
-    if (val === PASSWORD) {
-      sessionStorage.setItem('redwood-parent-auth', '1');
-      showApp();
-    } else {
+    const btn = document.getElementById('login-btn');
+    btn.disabled = true;
+    btn.textContent = 'Checking…';
+    try {
+      const res = await fetch(`${WORKER_URL}/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: val, role: 'parent' }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        authToken = data.token;
+        sessionStorage.setItem('redwood-parent-token', authToken);
+        showApp();
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    } catch {
+      document.getElementById('login-error').textContent = 'Connection error. Try again.';
       document.getElementById('login-error').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'View schedule';
     }
+  }
+
+  function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` };
   }
 
   function showApp() {
@@ -475,7 +498,7 @@
     init();
   }
 
-  if (sessionStorage.getItem('redwood-parent-auth') === '1') {
+  if (authToken) {
     showApp();
   } else {
     document.getElementById('login-btn').addEventListener('click', checkPassword);
@@ -509,7 +532,7 @@
 
   async function loadSessions() {
     try {
-      const res = await fetch(`${WORKER_URL}/sessions`);
+      const res = await fetch(`${WORKER_URL}/sessions`, { headers: authHeaders() });
       sessions = await res.json();
       renderSchedule();
       const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
