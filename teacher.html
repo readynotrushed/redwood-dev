@@ -712,7 +712,7 @@
 
     return `
       <div class="slot-row">
-        <div class="slot-time">${displayTime(slot)}</div>
+        <div class="slot-time">${displayTime(slot)}${slot >= '16:00' ? ' 🌍' : ''}</div>
         <div class="slot-sessions">${sessionsHtml}</div>
       </div>`;
   }
