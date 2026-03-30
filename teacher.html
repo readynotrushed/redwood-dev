@@ -414,6 +414,7 @@
     <div class="tree">🌳</div>
     <h1>Redwood Sessions</h1>
     <p>Teacher booking portal</p>
+<p style="font-size:0.82rem;color:var(--bark-light);margin-top:-1rem;margin-bottom:2rem;line-height:1.5;">Book a slot, share your Zoom link, and you're done. Any Redwood child can join any session.</p>
     <input type="password" id="password-input" placeholder="Enter password" />
     <button id="login-btn">Enter</button>
     <div class="login-error" id="login-error">Incorrect password. Try again.</div>
@@ -458,7 +459,8 @@
 
   <div class="app-body">
     <div class="schedule-col">
-      <div class="day-tabs" id="day-tabs"></div>
+      <p style="font-size:0.82rem;color:var(--bark-light);margin-bottom:1rem;line-height:1.5;">Every Redwood child is welcome at every session. Pick a slot that works for you.</p>
+<div class="day-tabs" id="day-tabs"></div>
       <div class="filter-bar">
         <label style="font-size:0.78rem;color:var(--bark-light);white-space:nowrap;">Filter by teacher:</label>
         <select class="tz-select" id="teacher-filter" onchange="onFilterChange()" style="max-width:200px;">
@@ -480,7 +482,8 @@
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <h2>Book a session</h2>
-    <div class="slot-label" id="modal-slot-label">Choose a slot below</div>
+    <p style="font-size:0.82rem;color:var(--bark-light);margin-bottom:1.25rem;line-height:1.5;">15 minutes, any topic. Songs, a story, some phonics, free play. Whatever feels right. Your session goes live on the parent schedule the moment you save it.</p>
+<div class="slot-label" id="modal-slot-label">Choose a slot below</div>
     <div class="form-group">
       <label>Your name</label>
       <select id="teacher-select" onchange="selectedTeacher = this.value">
