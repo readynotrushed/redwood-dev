@@ -973,7 +973,10 @@ function threadToggle(s) {
     const dayIdx = document.getElementById('modal-day-select').value;
     const time = document.getElementById('modal-time-select').value;
     const activity = document.getElementById('activity-input').value.trim();
-    const zoom_link = document.getElementById('zoom-input').value.trim();
+    let zoom_link = document.getElementById('zoom-input').value.trim();
+    if (zoom_link && !zoom_link.startsWith('http://') && !zoom_link.startsWith('https://')) {
+    zoom_link = 'https://' + zoom_link;
+    }
 
     if (!teacher || dayIdx === '' || !time || !zoom_link) {
       showToast('Please fill in all required fields.', 'error');
