@@ -734,7 +734,7 @@
 
     return `
       <div class="slot-row">
-        <div class="slot-time">${displayTime(slot)}</div>
+        <div class="slot-time">${displayTime(slot)}${slot >= '16:00' ? ' 🌍' : ''}</div>
         <div class="slot-sessions">${sessionsHtml}</div>
       </div>`;
   }
@@ -811,16 +811,15 @@
   }
 
   function updateModalSlots() {
-    const sel = document.getElementById('modal-time-select');
-    sel.innerHTML = '<option value="">Select time…</option>';
-    ALL_SLOTS.forEach(slot => {
-      const opt = document.createElement('option');
-      opt.value = slot;
-      const isInternational = slot >= '16:00';
-      opt.textContent = slot + (slot >= '14:00' ? (isInternational ? ' 🌍' : '') : '');
-      sel.appendChild(opt);
-    });
-  }
+  const sel = document.getElementById('modal-time-select');
+  sel.innerHTML = '<option value="">Select time…</option>';
+  ALL_SLOTS.forEach(slot => {
+    const opt = document.createElement('option');
+    opt.value = slot;
+    opt.textContent = slot >= '16:00' ? slot + ' 🌍' : slot;
+    sel.appendChild(opt);
+  });
+}
 
   // --- SUBMIT ---
   async function submitSession() {
