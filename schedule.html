@@ -153,6 +153,18 @@
   }
   .tip-banner strong { color: var(--sun); }
 
+.tip-otherbanner {
+    background: var(--sun-light);
+    border: 1.5px solid #f0c060;
+    border-radius: 14px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--sun);
+  }
+  .tip-otherbanner strong { color: var(--sun-light); }
+
   /* DAY TABS */
   .day-tabs {
     display: flex;
@@ -365,7 +377,7 @@
     <h1>Redwood Sessions</h1>
     <p>What's on today</p>
     <div class="login-hint">
-      💡 <strong>Zoom tip:</strong> Before joining, rename yourself in Zoom to your child's name — teachers love calling children by name!
+      💡 <strong>Zoom tip:</strong> 💡 Rename yourself in Zoom to your child's name before joining. Little ones love hearing their name called out :)
     </div>
     <input type="password" id="password-input" placeholder="Enter password" />
     <button id="login-btn">View schedule</button>
@@ -407,7 +419,10 @@
 
   <div class="main">
     <div class="tip-banner">
-      💡 <strong>Zoom tip:</strong> Rename yourself to your child's name before joining — it helps teachers call children by name, even across classes. Any Redwood child can join any session.
+      💡 <strong>Zoom tip:</strong> 💡 Before joining: rename yourself in Zoom to your child's name. Hearing their name called out loud is so nice for little ones, especially when they're joining a session outside their usual class.
+    </div>
+    <div class="tip-banner">
+      💡 <strong>Zoom tip:</strong> Open to every Redwood child. Join any session, any teacher, any time.
     </div>
     <div class="day-tabs" id="day-tabs"></div>
     <div id="schedule"></div>
