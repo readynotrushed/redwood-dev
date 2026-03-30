@@ -7,11 +7,11 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --cream: #fdf8f2;
+    --cream: rgb(250, 240, 227);
     --bark: #3d2b1f;
     --bark-light: #6b4c3b;
-    --leaf: #4a7c59;
-    --leaf-light: #e8f0eb;
+    --leaf: rgb(121, 21, 22);
+    --leaf-light: rgba(121, 21, 22, 0.08);
     --sun: #e8a020;
     --sun-light: #fef3e0;
     --border: #e2d9d0;
@@ -76,7 +76,7 @@
   .login-card button {
     width: 100%;
     padding: 0.9rem;
-    background: var(--bark);
+    background: var(--leaf);
     color: white;
     border: none;
     border-radius: 12px;
@@ -86,7 +86,7 @@
     cursor: pointer;
     transition: background 0.2s;
   }
-  .login-card button:hover { background: var(--bark-light); }
+  .login-card button:hover { background: #5a0f10; }
   .login-error { color: #c0392b; font-size: 0.85rem; margin-top: 0.75rem; display: none; }
 
   /* MAIN */
@@ -174,7 +174,7 @@
     color: var(--bark-light);
     font-family: 'DM Sans', sans-serif;
   }
-  .day-tab.active { background: var(--bark); color: white; border-color: var(--bark); }
+  .day-tab.active { background: var(--leaf); color: white; border-color: var(--leaf); }
   .day-tab:hover:not(.active) { border-color: var(--bark-light); color: var(--bark); }
 
   /* SESSION CARDS */
@@ -186,9 +186,7 @@
     letter-spacing: 0.08em;
     margin: 1rem 0 0.6rem;
   }
-
   .sessions-list { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.5rem; }
-
   .session-card {
     background: white;
     border: 1.5px solid var(--border);
@@ -209,6 +207,7 @@
   .session-card.is-past {
     opacity: 0.5;
     filter: grayscale(0.4);
+    transform: none !important;
   }
   .session-card-actions {
     display: flex;
@@ -231,7 +230,7 @@
     background: var(--sun-light);
     color: var(--sun);
   }
-  .session-info { flex: 1 }
+  .session-info { flex: 1; }
   .session-teacher { font-weight: 500; font-size: 0.95rem; }
   .session-activity { font-size: 0.82rem; color: var(--bark-light); margin-top: 0.15rem; }
 
@@ -277,7 +276,7 @@
     white-space: nowrap;
     transition: background 0.2s;
   }
-  .zoom-btn:hover { background: #3d6b4a; }
+  .zoom-btn:hover { background: #5a0f10; }
   .add-cal-btn {
     display: inline-flex;
     align-items: center;
@@ -369,7 +368,7 @@
       💡 <strong>Zoom tip:</strong> Before joining, rename yourself in Zoom to your child's name — teachers love calling children by name!
     </div>
     <input type="password" id="password-input" placeholder="Enter password" />
-    <button onclick="checkPassword()">View schedule</button>
+    <button id="login-btn">View schedule</button>
     <div class="login-error" id="login-error">Incorrect password. Try again.</div>
   </div>
 </div>
@@ -410,7 +409,6 @@
     <div class="tip-banner">
       💡 <strong>Zoom tip:</strong> Rename yourself to your child's name before joining — it helps teachers call children by name, even across classes. Any Redwood child can join any session.
     </div>
-
     <div class="day-tabs" id="day-tabs"></div>
     <div id="schedule"></div>
     <div class="last-updated" id="last-updated"></div>
@@ -419,7 +417,7 @@
 
 <script>
   const WORKER_URL = 'https://redwood-api-dev.lunamargherita.com';
-  const PASSWORD = 'test2';
+  const PASSWORD = 'redwood2026'; // change before go-live
   const DUBAI_OFFSET = 4;
   let tzOffset = 4;
 
@@ -443,7 +441,6 @@
   }
 
   const CORRECT_DAYS = [
-    { label: 'Today Test', date: '2026-03-27' },  // TEMP - remove before prod
     { label: 'Mon 30 Mar', date: '2026-03-30' },
     { label: 'Tue 31 Mar', date: '2026-03-31' },
     { label: 'Wed 1 Apr', date: '2026-04-01' },
@@ -460,27 +457,38 @@
     return idx >= 0 ? idx : 0;
   }
 
+  // --- AUTH (sessionStorage: persists across refreshes, clears when tab closes) ---
   function checkPassword() {
     const val = document.getElementById('password-input').value;
     if (val === PASSWORD) {
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      activeDayIndex = getTodayIndex();
-      init();
+      sessionStorage.setItem('redwood-parent-auth', '1');
+      showApp();
     } else {
       document.getElementById('login-error').style.display = 'block';
     }
   }
-  document.getElementById('password-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkPassword();
-  });
+
+  function showApp() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    activeDayIndex = getTodayIndex();
+    init();
+  }
+
+  if (sessionStorage.getItem('redwood-parent-auth') === '1') {
+    showApp();
+  } else {
+    document.getElementById('login-btn').addEventListener('click', checkPassword);
+    document.getElementById('password-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') checkPassword();
+    });
+    document.getElementById('password-input').focus();
+  }
 
   function init() {
     buildDayTabs();
     loadSessions();
-    // Auto-refresh sessions every 2 minutes
     setInterval(loadSessions, 120000);
-    // Re-render every minute to update LIVE status without a network call
     setInterval(renderSchedule, 60000);
   }
 
@@ -533,7 +541,6 @@
     const afternoon = daySessions.filter(s => s.time >= '14:00');
 
     let html = '';
-
     const tzLabel = tzOffset === DUBAI_OFFSET ? 'Dubai time' : `your local time (GMT${tzOffset >= 0 ? '+' : ''}${tzOffset})`;
 
     if (morning.length) {
@@ -552,7 +559,6 @@
   }
 
   function isLive(s) {
-    // Compare current Dubai time against session window
     const now = new Date();
     const dubaiNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dubai' }));
     const [year, month, day] = s.date.split('-').map(Number);
@@ -563,72 +569,68 @@
   }
 
   function isPast(s) {
-  const now = new Date();
-  const dubaiNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dubai' }));
-  const [year, month, day] = s.date.split('-').map(Number);
-  const [h, m] = s.time.split(':').map(Number);
-  const sessionEnd = new Date(year, month - 1, day, h, m + 15, 0);
-  return dubaiNow >= sessionEnd;
-}
+    const now = new Date();
+    const dubaiNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dubai' }));
+    const [year, month, day] = s.date.split('-').map(Number);
+    const [h, m] = s.time.split(':').map(Number);
+    const sessionEnd = new Date(year, month - 1, day, h, m + 15, 0);
+    return dubaiNow >= sessionEnd;
+  }
 
-function sessionCardHtml(s, isAfternoon) {
-  const live = isLive(s);
-  const past = isPast(s);
-  const gcalUrl = buildGcalUrl(s);
-  const popupId = `cal-popup-${s.id}`;
+  function sessionCardHtml(s, isAfternoon) {
+    const live = isLive(s);
+    const past = isPast(s);
+    const gcalUrl = buildGcalUrl(s);
+    const popupId = `cal-popup-${s.id}`;
 
-  const joinBtn = !past
-    ? `<a class="zoom-btn" href="${s.zoom_link && !s.zoom_link.startsWith('http') ? 'https://' + s.zoom_link : s.zoom_link}" target="_blank">Join ↗</a>`
-    : '';
+    const joinBtn = !past
+      ? `<a class="zoom-btn" href="${s.zoom_link && !s.zoom_link.startsWith('http') ? 'https://' + s.zoom_link : s.zoom_link}" target="_blank">Join ↗</a>`
+      : '';
 
-  const calBtn = !past && !live
-    ? `<div style="position:relative">
-         <button class="add-cal-btn" onclick="toggleCalPopup('${popupId}', event)">📅 Add to calendar</button>
-         <div class="cal-popup" id="${popupId}">
-           <button class="cal-popup-item" onclick='downloadIcs(${JSON.stringify(s).replace(/'/g, "&#39;")})'>📱 iCal / Apple Calendar</button>
-           <a class="cal-popup-item" href="${gcalUrl}" target="_blank">🗓 Google Calendar</a>
-         </div>
-       </div>`
-    : '';
+    const calBtn = !past && !live
+      ? `<div style="position:relative">
+           <button class="add-cal-btn" onclick="toggleCalPopup('${popupId}', event)">📅 Add to calendar</button>
+           <div class="cal-popup" id="${popupId}">
+             <button class="cal-popup-item" onclick='downloadIcs(${JSON.stringify(s).replace(/'/g, "&#39;")})'>📱 iCal / Apple Calendar</button>
+             <a class="cal-popup-item" href="${gcalUrl}" target="_blank">🗓 Google Calendar</a>
+           </div>
+         </div>`
+      : '';
 
-  return `
-    <div class="session-card${live ? ' is-live' : ''}${past ? ' is-past' : ''}">
-      <div class="session-time-badge ${isAfternoon ? 'afternoon' : ''}">${displayTime(s.time)}</div>
-      <div class="session-info">
-        <div class="session-teacher">
-          ${s.teacher}
-          ${live ? '<span class="live-badge"><span class="live-dot"></span>LIVE</span>' : ''}
+    return `
+      <div class="session-card${live ? ' is-live' : ''}${past ? ' is-past' : ''}">
+        <div class="session-time-badge ${isAfternoon ? 'afternoon' : ''}">${displayTime(s.time)}</div>
+        <div class="session-info">
+          <div class="session-teacher">
+            ${s.teacher}
+            ${live ? '<span class="live-badge"><span class="live-dot"></span>LIVE</span>' : ''}
+          </div>
+          <div class="session-activity">${s.activity || 'Drop in and see!'}</div>
         </div>
-        <div class="session-activity">${s.activity || 'Drop in and see!'}</div>
-      </div>
-      <div class="session-card-actions">
-        ${joinBtn}
-        ${calBtn}
-      </div>
-    </div>`;
-}
+        <div class="session-card-actions">
+          ${joinBtn}
+          ${calBtn}
+        </div>
+      </div>`;
+  }
+
   function toggleCalPopup(id, e) {
     e.stopPropagation();
     const popup = document.getElementById(id);
     const isOpen = popup.classList.contains('open');
-    // Close all popups first
     document.querySelectorAll('.cal-popup').forEach(p => p.classList.remove('open'));
     if (!isOpen) popup.classList.add('open');
   }
 
-  // Close popups when clicking elsewhere
   document.addEventListener('click', () => {
     document.querySelectorAll('.cal-popup').forEach(p => p.classList.remove('open'));
   });
 
   function buildGcalUrl(s) {
-    // Sessions are stored in Dubai time (GMT+4)
-    // Google Calendar expects UTC times in format YYYYMMDDTHHmmssZ
     const [year, month, day] = s.date.split('-').map(Number);
     const [h, m] = s.time.split(':').map(Number);
-    // Convert Dubai (GMT+4) to UTC by subtracting 4 hours
     const startUtc = new Date(Date.UTC(year, month - 1, day, h - 4, m, 0));
-    const endUtc = new Date(startUtc.getTime() + 15 * 60 * 1000); // 15 min session
+    const endUtc = new Date(startUtc.getTime() + 15 * 60 * 1000);
     const fmt = d => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     const title = encodeURIComponent(`Redwood: ${s.teacher}${s.activity ? ' — ' + s.activity : ''}`);
     const details = encodeURIComponent(`Join Zoom: ${s.zoom_link}\n\nRedwood Sessions — any Redwood child can join.`);

@@ -7,11 +7,11 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --cream: #fdf8f2;
+    --cream: rgb(250, 240, 227);
     --bark: #3d2b1f;
     --bark-light: #6b4c3b;
-    --leaf: #4a7c59;
-    --leaf-light: #e8f0eb;
+    --leaf: rgb(121, 21, 22);
+    --leaf-light: rgba(121, 21, 22, 0.08);
     --sun: #e8a020;
     --sun-light: #fef3e0;
     --red: #c0392b;
@@ -69,7 +69,7 @@
   .login-card button {
     width: 100%;
     padding: 0.9rem;
-    background: var(--bark);
+    background: var(--leaf);
     color: white;
     border: none;
     border-radius: 12px;
@@ -79,9 +79,8 @@
     cursor: pointer;
     transition: background 0.2s;
   }
-  .login-card button:hover { background: var(--bark-light); }
+  .login-card button:hover { background: #5a0f10; }
   .login-error { color: var(--red); font-size: 0.85rem; margin-top: 0.75rem; display: none; }
-  
 
   /* MAIN APP */
   #app { display: none; }
@@ -116,7 +115,7 @@
     cursor: pointer;
     transition: background 0.2s;
   }
-  .add-btn:hover { background: #3d6b4a; }
+  .add-btn:hover { background: #5a0f10; }
   .header-actions { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
   .tz-wrapper { display: flex; align-items: center; gap: 0.4rem; }
   .tz-label { font-size: 0.75rem; color: var(--bark-light); white-space: nowrap; }
@@ -152,8 +151,6 @@
   .wa-btn:hover { border-color: #25D366; color: #25D366; background: #f0fdf4; }
   @media (max-width: 500px) { .wa-btn span { display: none; } }
 
-  .main { padding: 2rem; max-width: 900px; margin: 0 auto; }
-
   /* DAY TABS */
   .day-tabs {
     display: flex;
@@ -176,9 +173,9 @@
     color: var(--bark-light);
   }
   .day-tab.active {
-    background: var(--bark);
+    background: var(--leaf);
     color: white;
-    border-color: var(--bark);
+    border-color: var(--leaf);
   }
   .day-tab:hover:not(.active) { border-color: var(--bark-light); color: var(--bark); }
 
@@ -208,11 +205,11 @@
     justify-content: space-between;
     gap: 1rem;
     transition: box-shadow 0.2s;
+    flex-wrap: wrap;
   }
   .session-card:hover { box-shadow: 0 2px 12px var(--shadow); }
-  .session-card.mine { border-color: var(--leaf); background: var(--leaf-light); }
   .session-card.is-live { border-color: #e74c3c; box-shadow: 0 0 0 3px rgba(231,76,60,0.08); }
-  .session-card.is-past { opacity: 0.5; filter: grayscale(0.4);}
+  .session-card.is-past { opacity: 0.5; filter: grayscale(0.4); }
   .live-badge {
     display: inline-flex;
     align-items: center;
@@ -283,12 +280,11 @@
     position: fixed;
     inset: 0;
     background: rgba(61,43,31,0.4);
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     z-index: 200;
     padding: 1rem;
-    display: none;
   }
   .modal-overlay.open { display: flex; }
   .modal {
@@ -348,7 +344,7 @@
     cursor: pointer;
     transition: background 0.2s;
   }
-  .btn-primary:hover { background: #3d6b4a; }
+  .btn-primary:hover { background: #5a0f10; }
   .btn-primary:disabled { background: var(--border); cursor: not-allowed; }
   .btn-secondary {
     padding: 0.85rem 1.5rem;
@@ -386,110 +382,16 @@
   .toast.success { background: var(--leaf); }
   .toast.error { background: var(--red); }
 
-  @media (max-width: 600px) {
-    .main { padding: 1rem; }
-    header { padding: 1rem; }
-    .slot-row { grid-template-columns: 60px 1fr; }
-  }
-
-  /* TWO-COLUMN LAYOUT */
   .app-body {
     padding: 2rem;
     max-width: 900px;
     margin: 0 auto;
   }
 
-  /* SESSION ENCOURAGEMENT THREAD */
-  .session-thread {
-    margin-top: 0.75rem;
-    border-top: 1px solid var(--border);
-    padding-top: 0.75rem;
-    display: none;
-  }
-  .session-thread.open { display: block; }
-  .thread-messages {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-    max-height: 180px;
-    overflow-y: auto;
-  }
-  .thread-msg {
-    font-size: 0.82rem;
-    color: var(--bark);
-    line-height: 1.4;
-  }
-  .thread-msg-name {
-    font-weight: 600;
-    color: var(--leaf);
-    margin-right: 0.3rem;
-  }
-  .thread-msg-time {
-    font-size: 0.68rem;
-    color: var(--border);
-    margin-left: 0.3rem;
-  }
-  .thread-empty {
-    font-size: 0.8rem;
-    color: var(--border);
-    font-style: italic;
-  }
-  .thread-input-row {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-  .thread-name-input, .thread-msg-input {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.82rem;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    padding: 0.45rem 0.7rem;
-    color: var(--bark);
-    background: var(--cream);
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .thread-name-input { width: 110px; flex-shrink: 0; }
-  .thread-msg-input { flex: 1; }
-  .thread-name-input:focus, .thread-msg-input:focus { border-color: var(--leaf); }
-  .thread-send-btn {
-    background: var(--leaf);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 0.45rem 0.9rem;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.82rem;
-    font-weight: 500;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.2s;
-    flex-shrink: 0;
-  }
-  .thread-send-btn:hover { background: #3d6b4a; }
-  .thread-send-btn:disabled { background: var(--border); cursor: not-allowed; }
-  .thread-toggle-btn {
-    background: none;
-    border: none;
-    font-size: 0.75rem;
-    color: var(--bark-light);
-    cursor: pointer;
-    padding: 0;
-    font-family: 'DM Sans', sans-serif;
-    text-decoration: underline;
-    margin-top: 0.4rem;
-    display: block;
-  }
-  .thread-toggle-btn:hover { color: var(--leaf); }
-
   @media (max-width: 600px) {
     .app-body { padding: 1rem; }
     header { padding: 1rem; }
     .slot-row { grid-template-columns: 60px 1fr; }
-    .thread-input-row { flex-wrap: wrap; }
-    .thread-name-input { width: 100%; }
   }
 </style>
 </head>
@@ -610,9 +512,9 @@
 
 <script>
   const WORKER_URL = 'https://redwood-api-dev.lunamargherita.com';
-  const PASSWORD = 'test1';
-  const DUBAI_OFFSET = 4; // Dubai is GMT+4
-  let tzOffset = 4; // current selected offset, default Dubai
+  const PASSWORD = 'redwood2026'; // change before go-live
+  const DUBAI_OFFSET = 4;
+  let tzOffset = 4;
 
   function convertTime(timeStr, fromOffset, toOffset) {
     const [h, m] = timeStr.split(':').map(Number);
@@ -634,20 +536,7 @@
   }
 
   // --- DATES & SLOTS ---
-  const DAYS = [
-    { label: 'Today Test', date: '2026-03-27' },  // TEMP - remove before prod
-    { label: 'Mon 31 Mar', date: '2025-03-31' },  // will fix to 2025
-    { label: 'Tue 1 Apr', date: '2025-04-01' },
-    { label: 'Wed 2 Apr', date: '2025-04-02' },
-    { label: 'Thu 3 Apr', date: '2025-04-03' },
-    { label: 'Fri 4 Apr', date: '2025-04-04' },
-  ];
-
-  // Fix dates to 2026 -- note: build uses 2026
-  DAYS.forEach(d => { d.date = d.date.replace('2025', '2026'); });
-  // Correct labels
   const CORRECT_DAYS = [
-    { label: 'Today Test', date: '2026-03-27' },  // TEMP - remove before prod
     { label: 'Mon 30 Mar', date: '2026-03-30' },
     { label: 'Tue 31 Mar', date: '2026-03-31' },
     { label: 'Wed 1 Apr', date: '2026-04-01' },
@@ -656,17 +545,17 @@
   ];
 
   const MORNING_SLOTS = [];
-  for (let h = 9; h <= 12; h++) {
+  for (let h = 9; h <= 13; h++) {
     for (let m = 0; m < 60; m += 15) {
-      if (h === 12 && m > 30) break;
+      if (h === 13 && m > 0) break;
       MORNING_SLOTS.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
     }
   }
 
   const AFTERNOON_SLOTS = [];
-  for (let h = 14; h <= 20; h++) {
+  for (let h = 14; h <= 18; h++) {
     for (let m = 0; m < 60; m += 15) {
-      if (h === 20 && m > 30) break;
+      if (h === 18 && m > 0) break;
       AFTERNOON_SLOTS.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
     }
   }
@@ -676,33 +565,42 @@
   // --- STATE ---
   let sessions = [];
   let activeDayIndex = 0;
-  let modalPreselectedSlot = null;
   let editingSessionId = null;
   let selectedTeacher = '';
 
-  // --- AUTH ---
+  // --- AUTH (sessionStorage: persists across refreshes, clears when tab closes) ---
   function checkPassword() {
     const val = document.getElementById('password-input').value;
     if (val === PASSWORD) {
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      init();
+      sessionStorage.setItem('redwood-teacher-auth', '1');
+      showApp();
     } else {
       document.getElementById('login-error').style.display = 'block';
     }
   }
- document.getElementById('login-btn').addEventListener('click', checkPassword);
-  document.getElementById('password-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkPassword();
-  });
-  document.getElementById('password-input').focus();
+
+  function showApp() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    init();
+  }
+
+  // Check if already authenticated this session
+  if (sessionStorage.getItem('redwood-teacher-auth') === '1') {
+    showApp();
+  } else {
+    document.getElementById('login-btn').addEventListener('click', checkPassword);
+    document.getElementById('password-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') checkPassword();
+    });
+    document.getElementById('password-input').focus();
+  }
 
   // --- INIT ---
   function init() {
     buildDayTabs();
     buildModalDayOptions();
     loadSessions();
-    initChat();
   }
 
   function buildDayTabs() {
@@ -733,22 +631,11 @@
   }
 
   // --- LOAD SESSIONS ---
-  let livePollingStarted = false;
-
   async function loadSessions() {
     try {
       const res = await fetch(`${WORKER_URL}/sessions`);
       sessions = await res.json();
       renderSchedule();
-      // Load thread messages for any live sessions after render
-      sessions.forEach(s => {
-        if (isSessionLive(s)) loadThreadMessages(s.id);
-      });
-      // Start polling once, after first successful load
-      if (!livePollingStarted) {
-        livePollingStarted = true;
-        startLivePolling();
-      }
     } catch (e) {
       document.getElementById('schedule').innerHTML = '<div class="loading">Could not load sessions. Check Worker URL.</div>';
     }
@@ -768,7 +655,6 @@
     }
     const container = document.getElementById('schedule');
 
-    // Group sessions by time
     const byTime = {};
     daySessions.forEach(s => {
       if (!byTime[s.time]) byTime[s.time] = [];
@@ -776,17 +662,14 @@
     });
 
     let html = '';
-
-    // Morning header
     const tzLabel = tzOffset === DUBAI_OFFSET ? 'Dubai time' : `your local time (GMT${tzOffset >= 0 ? '+' : ''}${tzOffset})`;
-    html += `<div style="font-size:0.75rem;font-weight:600;color:var(--bark-light);text-transform:uppercase;letter-spacing:0.08em;padding:0.5rem 0 0.25rem 88px">Morning · ${tzLabel}</div>`;
 
+    html += `<div style="font-size:0.75rem;font-weight:600;color:var(--bark-light);text-transform:uppercase;letter-spacing:0.08em;padding:0.5rem 0 0.25rem 88px">Morning · ${tzLabel}</div>`;
     MORNING_SLOTS.forEach(slot => {
       html += renderSlotRow(slot, byTime[slot] || [], day.date);
     });
 
     html += `<div style="font-size:0.75rem;font-weight:600;color:var(--bark-light);text-transform:uppercase;letter-spacing:0.08em;padding:1rem 0 0.25rem 88px">Afternoon · ${tzLabel}</div>`;
-
     AFTERNOON_SLOTS.forEach(slot => {
       html += renderSlotRow(slot, byTime[slot] || [], day.date);
     });
@@ -795,42 +678,35 @@
   }
 
   function renderSlotRow(slot, slotSessions, date) {
-  let sessionsHtml = '';
-  slotSessions.forEach(s => {
-    const live = isSessionLive(s);
-    const past = isSessionPast(s);
+    let sessionsHtml = '';
+    slotSessions.forEach(s => {
+      const live = isSessionLive(s);
+      const past = isSessionPast(s);
 
-    const joinBtn = !past
-      ? `<a class="session-zoom" href="${s.zoom_link}" target="_blank">Join Zoom ↗</a>`
-      : '';
+      const joinBtn = !past
+        ? `<a class="session-zoom" href="${s.zoom_link && !s.zoom_link.startsWith('http') ? 'https://' + s.zoom_link : s.zoom_link}" target="_blank">Start Zoom ↗</a>`
+        : '';
 
-    const actions = !past
-      ? `<div class="card-actions">
-           <button class="edit-btn" onclick="openEditModal('${s.id}')">Edit</button>
-           <button class="cancel-btn" onclick="cancelSession('${s.id}')">Cancel</button>
-         </div>`
-      : '';
+      const actions = !past
+        ? `<div class="card-actions">
+             <button class="edit-btn" onclick="openEditModal('${s.id}')">Edit</button>
+             <button class="cancel-btn" onclick="cancelSession('${s.id}')">Cancel</button>
+           </div>`
+        : '';
 
-    const thread = live ? renderThread(s) : (past ? threadToggle(s) : '');
-
-    sessionsHtml += `
-      <div class="session-card${live ? ' is-live' : ''}${past ? ' is-past' : ''}">
-        <div class="session-info">
-          <div class="session-teacher">
-            ${s.teacher}
-            ${live ? '<span class="live-badge"><span class="live-dot"></span>LIVE</span>' : ''}
+      sessionsHtml += `
+        <div class="session-card${live ? ' is-live' : ''}${past ? ' is-past' : ''}">
+          <div class="session-info">
+            <div class="session-teacher">
+              ${s.teacher}
+              ${live ? '<span class="live-badge"><span class="live-dot"></span>LIVE</span>' : ''}
+            </div>
+            <div class="session-activity">${s.activity || 'No activity listed'}</div>
           </div>
-          <div class="session-activity">${s.activity || 'No activity listed'}</div>
-        </div>
-        ${joinBtn}
-        ${actions}
-        ${thread}
-      </div>`;
-  });
-
-function threadToggle(s) {
-  return `<button class="thread-toggle-btn" onclick="openThread('${s.id}')">💬 Show messages</button>`;
-}
+          ${joinBtn}
+          ${actions}
+        </div>`;
+    });
 
     sessionsHtml += `<div class="empty-slot" onclick="openModal('${date}','${slot}')">+ Add session</div>`;
 
@@ -851,20 +727,6 @@ function threadToggle(s) {
     return dubaiNow >= sessionStart && dubaiNow < sessionEnd;
   }
 
-  const ENCOURAGE_PLACEHOLDERS = [
-    "Send [name] some love, she's live right now! 🌱",
-    "[name] can see this. Cheer her on 💚",
-    "15 minutes of magic. Let [name] know you're with her 🌟",
-    "Drop [name] a note, it'll make her smile mid-session ☀️",
-    "[name] is on! A little encouragement goes a long way 🍀",
-    "She's doing the thing. Tell [name] she's got this 💛",
-  ];
-
-  function getPlaceholder(firstName) {
-    const p = ENCOURAGE_PLACEHOLDERS[Math.floor(Math.random() * ENCOURAGE_PLACEHOLDERS.length)];
-    return p.replace('[name]', firstName);
-  }
-
   function isSessionPast(s) {
     const now = new Date();
     const dubaiNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dubai' }));
@@ -873,35 +735,11 @@ function threadToggle(s) {
     const sessionEnd = new Date(year, month - 1, day, h, m + 15, 0);
     return dubaiNow >= sessionEnd;
   }
-  
-  function renderThread(s) {
-    const firstName = s.teacher.split(' ').pop();
-    const placeholder = getPlaceholder(firstName);
-    return `
-      <div class="session-thread open" id="thread-${s.id}" style="width:100%">
-        <div class="thread-messages" id="thread-msgs-${s.id}">
-          <div class="thread-empty">Be the first to cheer ${firstName} on 🌟</div>
-        </div>
-        <div class="thread-input-row">
-          <input class="thread-name-input" id="thread-name-${s.id}"
-            placeholder="Your name"
-            value="${localStorage.getItem('redwood-chat-username') || ''}"
-            oninput="localStorage.setItem('redwood-chat-username', this.value)" />
-          <input class="thread-msg-input" id="thread-input-${s.id}"
-            placeholder="${placeholder}"
-            maxlength="200"
-            onkeydown="if(event.key==='Enter')sendThreadMessage('${s.id}')" />
-          <button class="thread-send-btn" onclick="sendThreadMessage('${s.id}')">Send 🌱</button>
-        </div>
-      </div>`;
-  }
 
   // --- MODAL ---
   function openModal(date, time) {
     document.getElementById('modal').classList.add('open');
-
     if (date && time) {
-      // Preselect day
       const dayIdx = CORRECT_DAYS.findIndex(d => d.date === date);
       if (dayIdx >= 0) {
         document.getElementById('modal-day-select').value = dayIdx;
@@ -934,15 +772,11 @@ function threadToggle(s) {
     const s = sessions.find(s => s.id === id);
     if (!s) return;
     editingSessionId = id;
-
     document.getElementById('modal').classList.add('open');
     document.querySelector('#modal h2').textContent = 'Edit session';
     document.getElementById('submit-btn').textContent = 'Save changes';
-
-    // Pre-fill fields
     document.getElementById('teacher-select').value = s.teacher;
     selectedTeacher = s.teacher;
-
     const dayIdx = CORRECT_DAYS.findIndex(d => d.date === s.date);
     if (dayIdx >= 0) {
       document.getElementById('modal-day-select').value = dayIdx;
@@ -950,24 +784,23 @@ function threadToggle(s) {
       document.getElementById('modal-time-select').value = s.time;
       document.getElementById('modal-slot-label').textContent = `Editing: ${CORRECT_DAYS[dayIdx].label} at ${s.time}`;
     }
-
     document.getElementById('activity-input').value = s.activity || '';
     document.getElementById('zoom-input').value = s.zoom_link || '';
   }
 
   function updateModalSlots() {
-    const dayIdx = document.getElementById('modal-day-select').value;
     const sel = document.getElementById('modal-time-select');
     sel.innerHTML = '<option value="">Select time…</option>';
     ALL_SLOTS.forEach(slot => {
       const opt = document.createElement('option');
       opt.value = slot;
-      opt.textContent = slot + (slot >= '14:00' ? ' 🌍' : '');
+      const isInternational = slot >= '16:00';
+      opt.textContent = slot + (slot >= '14:00' ? (isInternational ? ' 🌍' : '') : '');
       sel.appendChild(opt);
     });
   }
 
-  // --- SUBMIT (new or edit) ---
+  // --- SUBMIT ---
   async function submitSession() {
     const teacher = document.getElementById('teacher-select').value;
     const dayIdx = document.getElementById('modal-day-select').value;
@@ -975,7 +808,7 @@ function threadToggle(s) {
     const activity = document.getElementById('activity-input').value.trim();
     let zoom_link = document.getElementById('zoom-input').value.trim();
     if (zoom_link && !zoom_link.startsWith('http://') && !zoom_link.startsWith('https://')) {
-    zoom_link = 'https://' + zoom_link;
+      zoom_link = 'https://' + zoom_link;
     }
 
     if (!teacher || dayIdx === '' || !time || !zoom_link) {
@@ -990,7 +823,6 @@ function threadToggle(s) {
 
     try {
       if (editingSessionId) {
-        // PATCH existing session
         const res = await fetch(`${WORKER_URL}/session/${editingSessionId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -999,7 +831,6 @@ function threadToggle(s) {
         if (!res.ok) throw new Error();
         showToast('Session updated!', 'success');
       } else {
-        // POST new session
         const res = await fetch(`${WORKER_URL}/session`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1039,107 +870,9 @@ function threadToggle(s) {
     setTimeout(() => t.classList.remove('show'), 3000);
   }
 
-  // Close modal on overlay click
   document.getElementById('modal').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
   });
-
-  // --- SESSION ENCOURAGEMENT THREADS ---
-  const threadCache = {}; // sessionId -> messages[]
-  const threadPollers = {}; // sessionId -> intervalId
-
-  function openThread(sessionId) {
-    // For non-live sessions, toggle a collapsed thread view
-    const existing = document.getElementById(`thread-${sessionId}`);
-    if (existing) {
-      existing.classList.toggle('open');
-      return;
-    }
-    // Inject thread below the session card
-    const card = document.querySelector(`[data-session-id="${sessionId}"]`);
-    if (!card) return;
-    const threadHtml = `
-      <div class="session-thread open" id="thread-${sessionId}" style="width:100%">
-        <div class="thread-messages" id="thread-msgs-${sessionId}">
-          <div class="thread-empty">No messages yet for this session.</div>
-        </div>
-      </div>`;
-    card.insertAdjacentHTML('beforeend', threadHtml);
-    loadThreadMessages(sessionId);
-  }
-
-  async function loadThreadMessages(sessionId) {
-    try {
-      const res = await fetch(`${WORKER_URL}/chat/${sessionId}`);
-      const messages = await res.json();
-      threadCache[sessionId] = messages;
-      renderThreadMessages(sessionId);
-    } catch { /* silent */ }
-  }
-
-  function renderThreadMessages(sessionId) {
-    const container = document.getElementById(`thread-msgs-${sessionId}`);
-    if (!container) return;
-    const messages = threadCache[sessionId] || [];
-    if (messages.length === 0) {
-      const session = sessions.find(s => s.id === sessionId);
-      const firstName = session ? session.teacher.split(' ').pop() : 'them';
-      container.innerHTML = `<div class="thread-empty">Be the first to cheer ${firstName} on 🌟</div>`;
-      return;
-    }
-    container.innerHTML = messages.map(m => {
-      const time = new Date(m.sent_at).toLocaleTimeString('en-GB', {
-        hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Dubai'
-      });
-      return `<div class="thread-msg">
-        <span class="thread-msg-name">${m.username}</span>${m.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}<span class="thread-msg-time">${time}</span>
-      </div>`;
-    }).join('');
-    container.scrollTop = container.scrollHeight;
-  }
-
-  async function sendThreadMessage(sessionId) {
-    const nameEl = document.getElementById(`thread-name-${sessionId}`);
-    const msgEl = document.getElementById(`thread-input-${sessionId}`);
-    const username = nameEl?.value.trim();
-    const message = msgEl?.value.trim();
-    if (!username) { showToast('Add your name first.', 'error'); nameEl?.focus(); return; }
-    if (!message) return;
-
-    const btn = document.querySelector(`#thread-${sessionId} .thread-send-btn`);
-    if (btn) btn.disabled = true;
-
-    try {
-      const res = await fetch(`${WORKER_URL}/chat/${sessionId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, message }),
-      });
-      if (!res.ok) throw new Error();
-      if (msgEl) msgEl.value = '';
-      await loadThreadMessages(sessionId);
-    } catch {
-      showToast('Could not send. Try again.', 'error');
-    } finally {
-      if (btn) btn.disabled = false;
-    }
-  }
-
-  // Poll live session threads every 10 seconds
-  function startLivePolling() {
-    setInterval(() => {
-      sessions.forEach(s => {
-        if (isSessionLive(s) && document.getElementById(`thread-msgs-${s.id}`)) {
-          loadThreadMessages(s.id);
-        }
-      });
-    }, 10000);
-  }
-
-  function initChat() {
-    // Sessions load and polling are handled in loadSessions
-    // initChat is kept for future chat setup if needed
-  }
 </script>
 </body>
 </html>
