@@ -578,7 +578,7 @@ function sessionCardHtml(s, isAfternoon) {
   const popupId = `cal-popup-${s.id}`;
 
   const joinBtn = !past
-    ? `<a class="zoom-btn" href="${s.zoom_link}" target="_blank">Join ↗</a>`
+    ? `<a class="zoom-btn" href="${s.zoom_link && !s.zoom_link.startsWith('http') ? 'https://' + s.zoom_link : s.zoom_link}" target="_blank">Join ↗</a>`
     : '';
 
   const calBtn = !past && !live
