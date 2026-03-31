@@ -1057,7 +1057,7 @@
   }
 
   function renderSlotRow(slot, slotSessions, date) {
-    let sessionsHtml = '';}
+    let sessionsHtml = '';
     slotSessions.forEach(s => {
       const live = isSessionLive(s);
       const past = isSessionPast(s);
@@ -1099,6 +1099,7 @@ sessionsHtml += `<div class="empty-slot" onclick="openModal('${date}','${slot}')
         <div class="slot-time">${displayTime(slot)}${slot >= '16:00' ? ' 🌍' : ''}</div>
         <div class="slot-sessions">${sessionsHtml}</div>
       </div>`;
+    }
 
   function isSessionLive(s) {
     const now = new Date();
