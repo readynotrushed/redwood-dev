@@ -283,45 +283,20 @@
   .edit-btn { color: var(--bark-light); }
   .edit-btn:hover { background: var(--sun-light); border-color: var(--sun); color: var(--sun); }
   .empty-slot {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1.5px dashed var(--leaf);
-  border-radius: 8px;
-  padding: 0.3rem 0.7rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--leaf);
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  font-size: 0.8rem;
+  color: var(--border);
   cursor: pointer;
   transition: all 0.2s;
-  background: var(--leaf-light);
-  width: auto;
-  align-self: flex-start;
+  text-align: center;
 }
 .empty-slot:hover {
-  background: rgba(121, 21, 22, 0.15);
+  border-color: var(--leaf);
+  color: var(--leaf);
+  background: var(--leaf-light);
 }
-  .slot-time-btn .slot-time-label {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: var(--bark-light);
-  }
-  .slot-time-btn .slot-add {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--leaf);
-    opacity: 0;
-    transition: opacity 0.15s;
-    line-height: 1;
-    padding-top: 0.05rem;
-  }
-  .slot-time-btn:hover .slot-add { opacity: 1; }
-  .slot-time-btn:hover .slot-time-label { color: var(--leaf); }
-  /* on touch devices, always show the + */
-  @media (hover: none) {
-    .slot-time-btn .slot-add { opacity: 0.5; }
-  }
-
   /* MODAL */
   .modal-overlay {
     position: fixed;
@@ -1117,14 +1092,13 @@
         </div>`;
     });
 
-sessionsHtml += `<div class="empty-slot" onclick="openModal('${date}','${slot}')">+</div>`;
+sessionsHtml += `<div class="empty-slot" onclick="openModal('${date}','${slot}')">+ Add session</div>`;
 
     return `
       <div class="slot-row">
         <div class="slot-time">${displayTime(slot)}${slot >= '16:00' ? ' 🌍' : ''}</div>
         <div class="slot-sessions">${sessionsHtml}</div>
       </div>`;
-  }
 
   function isSessionLive(s) {
     const now = new Date();
