@@ -842,7 +842,7 @@
          </div>`
       : '';
 
-    const loveBtn = !past
+    const loveBtn = live
       ? `<button class="love-btn" id="love-btn-${s.id}" onclick="sendLove('${s.id}', event)">💛 <span id="love-count-${s.id}">Send love</span></button>`
       : '';
 
@@ -917,6 +917,7 @@
     el.addEventListener('animationend', () => el.remove());
   }
 
+  function downloadIcs(s) {
     const [year, month, day] = s.date.split('-').map(Number);
     const [h, m] = s.time.split(':').map(Number);
     const startUtc = new Date(Date.UTC(year, month - 1, day, h - 4, m, 0));
@@ -948,6 +949,7 @@
     a.download = `redwood-session-${s.date}-${s.time.replace(':', '')}.ics`;
     a.click();
     URL.revokeObjectURL(url);
+  }
 </script>
 </body>
 </html>
