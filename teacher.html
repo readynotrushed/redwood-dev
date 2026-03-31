@@ -283,16 +283,24 @@
   .edit-btn { color: var(--bark-light); }
   .edit-btn:hover { background: var(--sun-light); border-color: var(--sun); color: var(--sun); }
   .empty-slot {
-    display: none; /* replaced by + in time column */
-  }
-  .slot-time-btn {
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-end;
-    gap: 0.3rem;
-    padding-top: 0.55rem;
-    cursor: pointer;
-  }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px dashed var(--leaf);
+  border-radius: 8px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--leaf);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--leaf-light);
+  width: auto;
+  align-self: flex-start;
+}
+.empty-slot:hover {
+  background: rgba(121, 21, 22, 0.15);
+}
   .slot-time-btn .slot-time-label {
     font-size: 0.8rem;
     font-weight: 500;
@@ -1109,19 +1117,11 @@
         </div>`;
     });
 
-    sessionsHtml += `<div class="empty-slot"></div>`;
-
-    const hasAnySessions = slotSessions.length > 0;
-    const timeCol = hasAnySessions
-      ? `<div class="slot-time">${displayTime(slot)}${slot >= '16:00' ? ' 🌍' : ''}</div>`
-      : `<div class="slot-time-btn" onclick="openModal('${date}','${slot}')">
-           <span class="slot-time-label">${displayTime(slot)}${slot >= '16:00' ? ' 🌍' : ''}</span>
-           <span class="slot-add">+</span>
-         </div>`;
+sessionsHtml += `<div class="empty-slot" onclick="openModal('${date}','${slot}')">+</div>`;
 
     return `
       <div class="slot-row">
-        ${timeCol}
+        <div class="slot-time">${displayTime(slot)}${slot >= '16:00' ? ' 🌍' : ''}</div>
         <div class="slot-sessions">${sessionsHtml}</div>
       </div>`;
   }
