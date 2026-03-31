@@ -501,6 +501,34 @@
     cursor: pointer;
   }
   .changelog-close:hover { background: #5a0f10; }
+
+  /* LOVE */
+  .love-replay-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--bark-light);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+    margin-top: 0.3rem;
+    display: inline-block;
+  }
+  .love-replay-btn:hover { border-color: #e74c3c; color: #e74c3c; }
+  .love-particle {
+    position: fixed;
+    pointer-events: none;
+    font-size: 1.8rem;
+    z-index: 9999;
+    animation: floatUp 1.6s ease-out forwards;
+  }
+  @keyframes floatUp {
+    0%   { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(-260px) scale(1.5) rotate(25deg); }
+  }
 </style>
 </head>
 <body>
@@ -932,6 +960,10 @@
            </div>`
         : '';
 
+      const loveArea = (live || past)
+        ? `<button class="love-replay-btn" onclick="showLove('${s.id}', event)" id="love-btn-${s.id}">💛 See the love</button>`
+        : '';
+
       sessionsHtml += `
         <div class="session-card${live ? ' is-live' : ''}${past ? ' is-past' : ''}">
           <div class="session-info">
@@ -940,6 +972,7 @@
               ${live ? '<span class="live-badge"><span class="live-dot"></span>LIVE</span>' : ''}
             </div>
             <div class="session-activity">${s.activity || 'No activity listed'}</div>
+            ${loveArea}
           </div>
           ${joinBtn}
           ${actions}
@@ -1107,6 +1140,42 @@
     t.textContent = msg;
     t.className = `toast ${type} show`;
     setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // --- LOVE ---
+  const LOVE_EMOJIS = ['💛', '💚', '🌟', '✨', '🌱', '💫', '🍀', '☀️'];
+
+  async function showLove(sessionId, event) {
+    const btn = document.getElementById(`love-btn-${sessionId}`);
+    try {
+      const res = await fetch(`${WORKER_URL}/love/${sessionId}`, { headers: { 'Authorization': `Bearer ${authToken}` } });
+      const data = await res.json();
+      if (data.count === 0) {
+        if (btn) btn.textContent = '💛 No love yet';
+        return;
+      }
+      if (btn) btn.textContent = `💛 ${data.count} hearts received`;
+      replayLove(data.count, event);
+    } catch { /* silent */ }
+  }
+
+  function replayLove(count, event) {
+    const bursts = Math.min(count, 30);
+    for (let i = 0; i < bursts; i++) {
+      setTimeout(() => spawnLoveParticle(event), i * 60);
+    }
+  }
+
+  function spawnLoveParticle(event) {
+    const el = document.createElement('div');
+    el.className = 'love-particle';
+    el.textContent = LOVE_EMOJIS[Math.floor(Math.random() * LOVE_EMOJIS.length)];
+    const x = (event.clientX || window.innerWidth / 2) + (Math.random() - 0.5) * 120;
+    const y = (event.clientY || window.innerHeight / 2) + (Math.random() - 0.5) * 40;
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    document.body.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
   }
 
   document.getElementById('modal').addEventListener('click', function(e) {

@@ -465,6 +465,41 @@
     cursor: pointer;
   }
   .changelog-close:hover { background: #5a0f10; }
+
+  /* LOVE BUTTON */
+  .love-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: 1.5px solid #e2d9d0;
+    border-radius: 20px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--bark-light);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .love-btn:hover { border-color: #e74c3c; color: #e74c3c; }
+  .love-btn:active { transform: scale(0.93); }
+  .love-btn.tapped { border-color: #e74c3c; color: #e74c3c; }
+
+  /* FLOATING HEARTS ANIMATION */
+  .love-particle {
+    position: fixed;
+    pointer-events: none;
+    font-size: 1.6rem;
+    z-index: 9999;
+    animation: floatUp 1.4s ease-out forwards;
+  }
+  @keyframes floatUp {
+    0%   { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(-220px) scale(1.4) rotate(20deg); }
+  }
 </style>
 </head>
 <body>
@@ -807,6 +842,10 @@
          </div>`
       : '';
 
+    const loveBtn = live
+      ? `<button class="love-btn" id="love-btn-${s.id}" onclick="sendLove('${s.id}', event)">💛 <span id="love-count-${s.id}">Send love</span></button>`
+      : '';
+
     return `
       <div class="session-card${live ? ' is-live' : ''}${past ? ' is-past' : ''}">
         <div class="session-time-badge ${isAfternoon ? 'afternoon' : ''}">${displayTime(s.time)}</div>
@@ -820,6 +859,7 @@
         <div class="session-card-actions">
           ${joinBtn}
           ${calBtn}
+          ${loveBtn}
         </div>
       </div>`;
   }
@@ -847,7 +887,36 @@
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${fmt(startUtc)}/${fmt(endUtc)}&details=${details}`;
   }
 
-  function downloadIcs(s) {
+  // --- LOVE ---
+  const EMOJIS = ['💛', '💚', '🌟', '✨', '🌱', '💫', '🍀', '☀️'];
+
+  async function sendLove(sessionId, event) {
+    spawnParticle(event);
+    try {
+      const res = await fetch(`${WORKER_URL}/love/${sessionId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await res.json();
+      const countEl = document.getElementById(`love-count-${sessionId}`);
+      if (countEl) countEl.textContent = `${data.count}`;
+      const btn = document.getElementById(`love-btn-${sessionId}`);
+      if (btn) btn.classList.add('tapped');
+    } catch { /* silent */ }
+  }
+
+  function spawnParticle(event) {
+    const el = document.createElement('div');
+    el.className = 'love-particle';
+    el.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+    const x = event.clientX + (Math.random() - 0.5) * 40;
+    const y = event.clientY;
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    document.body.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  }
+
     const [year, month, day] = s.date.split('-').map(Number);
     const [h, m] = s.time.split(':').map(Number);
     const startUtc = new Date(Date.UTC(year, month - 1, day, h - 4, m, 0));
