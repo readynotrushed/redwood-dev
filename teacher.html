@@ -283,19 +283,36 @@
   .edit-btn { color: var(--bark-light); }
   .edit-btn:hover { background: var(--sun-light); border-color: var(--sun); color: var(--sun); }
   .empty-slot {
-  border: 1.5px dashed var(--leaf);
-  border-radius: 12px;
-  padding: 0.6rem 1rem;
-  font-size: 0.8rem;
-  color: var(--leaf);
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: center;
-  background: var(--leaf-light);
-}
-.empty-slot:hover {
-  background: rgba(121, 21, 22, 0.15);
-}
+    display: none; /* replaced by + in time column */
+  }
+  .slot-time-btn {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 0.3rem;
+    padding-top: 0.55rem;
+    cursor: pointer;
+  }
+  .slot-time-btn .slot-time-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--bark-light);
+  }
+  .slot-time-btn .slot-add {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--leaf);
+    opacity: 0;
+    transition: opacity 0.15s;
+    line-height: 1;
+    padding-top: 0.05rem;
+  }
+  .slot-time-btn:hover .slot-add { opacity: 1; }
+  .slot-time-btn:hover .slot-time-label { color: var(--leaf); }
+  /* on touch devices, always show the + */
+  @media (hover: none) {
+    .slot-time-btn .slot-add { opacity: 0.5; }
+  }
 
   /* MODAL */
   .modal-overlay {
@@ -1092,11 +1109,19 @@
         </div>`;
     });
 
-    sessionsHtml += `<div class="empty-slot" onclick="openModal('${date}','${slot}')">+ Add session</div>`;
+    sessionsHtml += `<div class="empty-slot"></div>`;
+
+    const hasAnySessions = slotSessions.length > 0;
+    const timeCol = hasAnySessions
+      ? `<div class="slot-time">${displayTime(slot)}${slot >= '16:00' ? ' 🌍' : ''}</div>`
+      : `<div class="slot-time-btn" onclick="openModal('${date}','${slot}')">
+           <span class="slot-time-label">${displayTime(slot)}${slot >= '16:00' ? ' 🌍' : ''}</span>
+           <span class="slot-add">+</span>
+         </div>`;
 
     return `
       <div class="slot-row">
-        <div class="slot-time">${displayTime(slot)}${slot >= '16:00' ? ' 🌍' : ''}</div>
+        ${timeCol}
         <div class="slot-sessions">${sessionsHtml}</div>
       </div>`;
   }
