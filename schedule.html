@@ -842,7 +842,7 @@
          </div>`
       : '';
 
-    const loveBtn = live
+    const loveBtn = !past
       ? `<button class="love-btn" id="love-btn-${s.id}" onclick="sendLove('${s.id}', event)">💛 <span id="love-count-${s.id}">Send love</span></button>`
       : '';
 
