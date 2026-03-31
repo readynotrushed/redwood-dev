@@ -652,6 +652,11 @@
     return idx >= 0 ? idx : 0;
   }
 
+  function getVisibleDays() {
+    const todayIdx = getTodayIndex();
+    return CORRECT_DAYS.slice(todayIdx, todayIdx + 5);
+  }
+
   // --- AUTH ---
   let authToken = sessionStorage.getItem('redwood-parent-token') || null;
 
@@ -713,17 +718,25 @@
 
   function buildDayTabs() {
     const container = document.getElementById('day-tabs');
-    CORRECT_DAYS.forEach((day, i) => {
+    container.innerHTML = '';
+    const visible = getVisibleDays();
+    visible.forEach((day, i) => {
+      const globalIdx = CORRECT_DAYS.indexOf(day);
       const btn = document.createElement('button');
-      btn.className = 'day-tab' + (i === activeDayIndex ? ' active' : '');
-      btn.innerHTML = `${day.label} <span class="tab-badge" id="badge-${i}"></span>`;
-      btn.onclick = () => { activeDayIndex = i; setActiveTab(i); renderSchedule(); };
+      btn.className = 'day-tab' + (globalIdx === activeDayIndex ? ' active' : '');
+      btn.innerHTML = `${day.label} <span class="tab-badge" id="badge-${globalIdx}"></span>`;
+      btn.onclick = () => { activeDayIndex = globalIdx; setActiveTab(globalIdx); renderSchedule(); };
       container.appendChild(btn);
     });
   }
 
-  function setActiveTab(i) {
-    document.querySelectorAll('.day-tab').forEach((t, idx) => t.classList.toggle('active', idx === i));
+  function setActiveTab(globalIdx) {
+    const visible = getVisibleDays();
+    document.querySelectorAll('.day-tab').forEach((t, i) => {
+      const day = visible[i];
+      const idx = CORRECT_DAYS.indexOf(day);
+      t.classList.toggle('active', idx === globalIdx);
+    });
   }
 
   async function loadSessions() {

@@ -502,6 +502,46 @@
   }
   .changelog-close:hover { background: #5a0f10; }
 
+  /* ARCHIVE */
+  #archive-section { margin-bottom: 1.5rem; }
+  #archive-toggle {
+    background: none;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    color: var(--bark-light);
+    cursor: pointer;
+    padding: 0.3rem 0;
+    text-decoration: underline;
+  }
+  #archive-toggle:hover { color: var(--bark); }
+  #archive-list { margin-top: 0.75rem; }
+  .archive-day { margin-bottom: 1rem; }
+  .archive-day-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--bark-light);
+    margin-bottom: 0.4rem;
+  }
+  .archive-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.35rem;
+    opacity: 0.75;
+  }
+  .archive-card-info { display: flex; gap: 0.75rem; align-items: center; flex: 1; flex-wrap: wrap; }
+  .archive-time { font-size: 0.78rem; font-weight: 600; color: var(--bark-light); }
+  .archive-teacher { font-size: 0.82rem; font-weight: 500; color: var(--bark); }
+  .archive-activity { font-size: 0.78rem; color: var(--bark-light); }
+
   /* LOVE */
   .love-replay-btn {
     background: none;
@@ -587,6 +627,10 @@
     <div class="schedule-col">
       <p style="font-size:0.82rem;color:var(--bark-light);margin-bottom:1rem;line-height:1.5;">Every Redwood child is welcome at every session. Pick a slot that works for you.</p>
 <div class="day-tabs" id="day-tabs"></div>
+      <div id="archive-section" style="display:none;">
+        <button id="archive-toggle">📁 Past sessions</button>
+        <div id="archive-list"></div>
+      </div>
       <div class="filter-bar">
         <label style="font-size:0.78rem;color:var(--bark-light);white-space:nowrap;">Filter by teacher:</label>
         <select class="tz-select" id="teacher-filter" onchange="onFilterChange()" style="max-width:200px;">
@@ -787,6 +831,16 @@
     return idx >= 0 ? idx : 0;
   }
 
+  function getVisibleDays() {
+    const todayIdx = getTodayIndex();
+    return CORRECT_DAYS.slice(todayIdx, todayIdx + 5);
+  }
+
+  function getPastDays() {
+    const todayIdx = getTodayIndex();
+    return CORRECT_DAYS.slice(0, todayIdx).reverse(); // most recent first
+  }
+
   // --- AUTH ---
   let authToken = sessionStorage.getItem('redwood-teacher-token') || null;
 
@@ -848,18 +902,67 @@
 
   function buildDayTabs() {
     const container = document.getElementById('day-tabs');
-    CORRECT_DAYS.forEach((day, i) => {
+    container.innerHTML = '';
+    const visible = getVisibleDays();
+    visible.forEach((day) => {
+      const globalIdx = CORRECT_DAYS.indexOf(day);
       const btn = document.createElement('button');
-      btn.className = 'day-tab' + (i === activeDayIndex ? ' active' : '');
-      btn.innerHTML = `${day.label} <span class="tab-badge" id="badge-${i}"></span>`;
-      btn.onclick = () => { activeDayIndex = i; setActiveTab(i); renderSchedule(); };
+      btn.className = 'day-tab' + (globalIdx === activeDayIndex ? ' active' : '');
+      btn.innerHTML = `${day.label} <span class="tab-badge" id="badge-${globalIdx}"></span>`;
+      btn.onclick = () => { activeDayIndex = globalIdx; setActiveTab(globalIdx); renderSchedule(); };
       container.appendChild(btn);
+    });
+    buildArchive();
+  }
+
+  function setActiveTab(globalIdx) {
+    const visible = getVisibleDays();
+    document.querySelectorAll('.day-tab').forEach((t, i) => {
+      const day = visible[i];
+      if (!day) return;
+      const idx = CORRECT_DAYS.indexOf(day);
+      t.classList.toggle('active', idx === globalIdx);
     });
   }
 
-  function setActiveTab(i) {
-    document.querySelectorAll('.day-tab').forEach((t, idx) => {
-      t.classList.toggle('active', idx === i);
+  function buildArchive() {
+    const pastDays = getPastDays();
+    const container = document.getElementById('archive-section');
+    if (!container) return;
+    if (pastDays.length === 0) { container.style.display = 'none'; return; }
+
+    const pastWithSessions = pastDays.filter(d => sessions.some(s => s.date === d.date));
+    if (pastWithSessions.length === 0) { container.style.display = 'none'; return; }
+
+    container.style.display = 'block';
+    const list = document.getElementById('archive-list');
+    list.style.display = 'none'; // collapsed by default
+    const toggle = document.getElementById('archive-toggle');
+    toggle.onclick = () => {
+      const open = list.style.display !== 'none';
+      list.style.display = open ? 'none' : 'block';
+      toggle.textContent = open ? '📁 Past sessions' : '📂 Past sessions';
+    };
+
+    list.innerHTML = '';
+    pastWithSessions.forEach(day => {
+      const daySessions = sessions.filter(s => s.date === day.date).sort((a, b) => a.time.localeCompare(b.time));
+      const dayEl = document.createElement('div');
+      dayEl.className = 'archive-day';
+      dayEl.innerHTML = `<div class="archive-day-label">${day.label}</div>`;
+      daySessions.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'archive-card';
+        card.innerHTML = `
+          <div class="archive-card-info">
+            <span class="archive-time">${s.time}</span>
+            <span class="archive-teacher">${s.teacher}</span>
+            <span class="archive-activity">${s.activity || ''}</span>
+          </div>
+          <button class="love-replay-btn" onclick="showLove('${s.id}', event)">💛 See the love</button>`;
+        dayEl.appendChild(card);
+      });
+      list.appendChild(dayEl);
     });
   }
 
@@ -879,6 +982,7 @@
       const res = await fetch(`${WORKER_URL}/sessions`, { headers: authHeaders() });
       sessions = await res.json();
       renderSchedule();
+      buildArchive();
     } catch (e) {
       document.getElementById('schedule').innerHTML = '<div class="loading">Could not load sessions. Check Worker URL.</div>';
     }
