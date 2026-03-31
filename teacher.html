@@ -1096,7 +1096,7 @@ sessionsHtml += `<div class="empty-slot" onclick="openModal('${date}','${slot}')
 
     return `
       <div class="slot-row">
-        <div class="slot-time">${displayTime(slot)}${slot >= '16:00' ? ' 🌍' : ''}</div>
+        <div class="slot-time">${displayTime(slot)}${slot >= '16:00' ? ' \uD83C\uDF0D' : ''}</div>
         <div class="slot-sessions">${sessionsHtml}</div>
       </div>`;
     }
@@ -1180,7 +1180,7 @@ sessionsHtml += `<div class="empty-slot" onclick="openModal('${date}','${slot}')
   ALL_SLOTS.forEach(slot => {
     const opt = document.createElement('option');
     opt.value = slot;
-    opt.textContent = slot >= '16:00' ? slot + ' 🌍' : slot;
+    opt.textContent = slot >= '16:00' ? slot + ' \uD83C\uDF0D' : slot;
     sel.appendChild(opt);
   });
 }
