@@ -692,8 +692,8 @@
 
 <div class="changelog-overlay" id="changelog">
   <div class="changelog-modal">
+    <h2>What's new 🎉</h2>
       <div class="changelog-body">
-      <h2>What's new 🎉</h2>
         <div class="changelog-entry">
           <div class="changelog-version">v1.3 | improvements + bug fixes</div>
           <div class="changelog-date">31 Mar 2026</div>
@@ -751,12 +751,11 @@
                 <li>Password-protected access</li>
               </ul>
           </div>
-        <div class="changelog-footer">
-          <button class="changelog-close" onclick="document.getElementById('changelog').classList.remove('open')">Close</button>
-        </div>
+       </div>
+    <div class="changelog-footer">
+      <button class="changelog-close" onclick="document.getElementById('changelog').classList.remove('open')">Close</button>
     </div>
   </div>
-</div>
 
 
 <div class="toast" id="toast"></div>
@@ -1297,12 +1296,12 @@ sessionsHtml += `<div class="empty-slot" onclick="openModal('${date}','${slot}')
 
   document.getElementById('modal').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
+    });
     
   document.getElementById('changelog').addEventListener('click', function(e) {
-  if (e.target === this) this.classList.remove('open');
-});
-    
+  if (e.target === this) this.classList.remove('open');   
   });
+  
 </script>
 </body>
 </html>
