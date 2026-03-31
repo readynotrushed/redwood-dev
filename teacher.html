@@ -283,20 +283,19 @@
   .edit-btn { color: var(--bark-light); }
   .edit-btn:hover { background: var(--sun-light); border-color: var(--sun); color: var(--sun); }
   .empty-slot {
-    border: 1.5px dashed var(--border);
-    border-radius: 12px;
-    padding: 0.6rem 1rem;
-    font-size: 0.8rem;
-    color: var(--border);
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
-  .empty-slot:hover {
-    border-color: var(--leaf);
-    color: var(--leaf);
-    background: var(--leaf-light);
-  }
+  border: 1.5px dashed var(--leaf);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  font-size: 0.8rem;
+  color: var(--leaf);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  background: var(--leaf-light);
+}
+.empty-slot:hover {
+  background: rgba(121, 21, 22, 0.15);
+}
 
   /* MODAL */
   .modal-overlay {
