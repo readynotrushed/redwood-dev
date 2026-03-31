@@ -172,6 +172,7 @@
     gap: 0.4rem;
     margin-bottom: 1.5rem;
     overflow-x: auto;
+    padding-top: 8px;
     padding-bottom: 0.25rem;
   }
   .day-tab {
@@ -179,6 +180,7 @@
     border-radius: 20px;
     border: 1.5px solid var(--border);
     background: white;
+    position: relative;
     font-size: 0.82rem;
     font-weight: 500;
     cursor: pointer;
@@ -189,6 +191,28 @@
   }
   .day-tab.active { background: var(--leaf); color: white; border-color: var(--leaf); }
   .day-tab:hover:not(.active) { border-color: var(--bark-light); color: var(--bark); }
+
+  .tab-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #e74c3c;
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 20px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+  
+.day-tab.active .tab-badge {
+  background: white;
+  color: var(--leaf);
+}
 
   /* SESSION CARDS */
   .section-label {
@@ -367,6 +391,80 @@
     .zoom-btn { flex: 1; justify-content: center; }
     .cal-popup { right: auto; left: 0; }
   }
+
+  /* WHAT'S NEW */
+  .whats-new-btn {
+    background: none;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: var(--bark-light);
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+  }
+  .whats-new-btn:hover { color: var(--leaf); }
+  .changelog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(61,43,31,0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+    padding: 1rem;
+  }
+  .changelog-overlay.open { display: flex; }
+  .changelog-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 420px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+  .changelog-modal h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    margin-bottom: 1.25rem;
+    color: var(--bark);
+  }
+  .changelog-entry { margin-bottom: 1.25rem; }
+  .changelog-version {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--leaf);
+    margin-bottom: 0.15rem;
+  }
+  .changelog-date {
+    font-size: 0.72rem;
+    color: var(--bark-light);
+    margin-bottom: 0.4rem;
+  }
+  .changelog-entry ul {
+    padding-left: 1.1rem;
+    font-size: 0.82rem;
+    color: var(--bark);
+    line-height: 1.6;
+  }
+  .changelog-close {
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--leaf);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .changelog-close:hover { background: #5a0f10; }
 </style>
 </head>
 <body>
@@ -415,6 +513,7 @@
         </select>
       </div>
       <button class="refresh-btn" onclick="loadSessions()">↻ Refresh</button>
+      <button class="whats-new-btn" onclick="document.getElementById('changelog').classList.add('open')">What's new</button>
     </div>
   </header>
 
@@ -431,8 +530,44 @@
   </div>
 </div>
 
+<div class="changelog-overlay" id="changelog">
+  <div class="changelog-modal">
+    <h2>What's new 🎉</h2>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.2 | improvements</div>
+      <div class="changelog-date">31 Mar 2026</div>
+      <ul>
+        <li>Schedule opens on today's date automatically</li>
+        <li>Scrolls to the next upcoming session on load</li>
+        <li>Session count badges on day tabs</li>
+        <li>Add to Calendar hidden during live sessions</li>
+        <li>What's new popup added</li>
+      </ul>
+    </div><div class="changelog-entry">
+      <div class="changelog-version">v1.1 | improvements</div>
+      <div class="changelog-date">30 Mar 2026</div>
+      <ul>
+        <li>LIVE badge on sessions happening now</li>
+        <li>Add to Calendar: iCal and Google Calendar</li>
+        <li>Timezone selector for parents abroad</li>
+        <li>Afternoon sessions marked with 🌍 for international families</li>
+        <li>Past sessions shown but greyed out, no Join button</li>
+      </ul>
+    </div>
+<div class="changelog-entry">
+      <div class="changelog-version">v1.1 | Launch</div>
+      <div class="changelog-date">29 Mar 2026</div>
+      <ul>
+        <li>Join Zoom button on upcoming and live sessions</li>
+        <li>Parent schedule with daily view</li>
+        <li>Password-protected access</li>
+      </ul>
+    </div>    <button class="changelog-close" onclick="document.getElementById('changelog').classList.remove('open')">Close</button>
+  </div>
+</div>
+
 <script>
-  const WORKER_URL = 'https://redwood-api-dev.lunamargherita.com';
+  const WORKER_URL = 'https://redwood-api.lunamargherita.com';
   const DUBAI_OFFSET = 4;
   let tzOffset = 4;
 
@@ -467,7 +602,7 @@
   let activeDayIndex = 0;
 
   function getTodayIndex() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Dubai' });
     const idx = CORRECT_DAYS.findIndex(d => d.date === today);
     return idx >= 0 ? idx : 0;
   }
@@ -536,7 +671,7 @@
     CORRECT_DAYS.forEach((day, i) => {
       const btn = document.createElement('button');
       btn.className = 'day-tab' + (i === activeDayIndex ? ' active' : '');
-      btn.textContent = day.label;
+      btn.innerHTML = `${day.label} <span class="tab-badge" id="badge-${i}"></span>`;
       btn.onclick = () => { activeDayIndex = i; setActiveTab(i); renderSchedule(); };
       container.appendChild(btn);
     });
@@ -595,6 +730,42 @@
     }
 
     container.innerHTML = html;
+    updateDayBadges();
+    scrollToCurrentTime();
+  }
+
+  function updateDayBadges() {
+    CORRECT_DAYS.forEach((day, i) => {
+      const count = sessions.filter(s => s.date === day.date).length;
+      const badge = document.getElementById(`badge-${i}`);
+      if (badge) {
+        const isActive = i === activeDayIndex;
+        badge.textContent = count > 0 ? count : '';
+        badge.style.display = count > 0 && !isActive ? 'inline-flex' : 'none';
+      }
+    });
+  }
+
+  function scrollToCurrentTime() {
+    const now = new Date();
+    const dubaiNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dubai' }));
+    const today = dubaiNow.toLocaleDateString('en-CA', { timeZone: 'Asia/Dubai' });
+    const day = CORRECT_DAYS[activeDayIndex];
+    if (day.date !== today) return;
+    const currentTime = `${String(dubaiNow.getHours()).padStart(2,'0')}:${String(dubaiNow.getMinutes()).padStart(2,'0')}`;
+    const allSessions = [...(sessions.filter(s => s.date === today))].sort((a,b) => a.time.localeCompare(b.time));
+    const nextSession = allSessions.find(s => s.time >= currentTime);
+    if (!nextSession) return;
+    setTimeout(() => {
+      const cards = document.querySelectorAll('.session-card');
+      for (const card of cards) {
+        const badge = card.querySelector('.session-time-badge');
+        if (badge && badge.textContent.trim().startsWith(displayTime(nextSession.time))) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          break;
+        }
+      }
+    }, 100);
   }
 
   function isLive(s) {

@@ -157,9 +157,11 @@
     gap: 0.5rem;
     margin-bottom: 2rem;
     overflow-x: auto;
+    padding-top: 8px;
     padding-bottom: 0.25rem;
   }
   .day-tab {
+    position: relative;
     padding: 0.5rem 1.2rem;
     border-radius: 20px;
     border: 1.5px solid var(--border);
@@ -177,7 +179,28 @@
     color: white;
     border-color: var(--leaf);
   }
-  .day-tab:hover:not(.active) { border-color: var(--bark-light); color: var(--bark); }
+  .day-tab:hover:not(.active) { border-color: var(--bark-light); color: var(--bark);
+  }
+  .tab-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #e74c3c;
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 400;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 20px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.day-tab.active .tab-badge {
+  background: white;
+  color: var(--leaf);
+}
 
   /* SCHEDULE GRID */
   .schedule { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -388,7 +411,7 @@
     margin: 0 auto;
   }
 
-  @media (max-width: 600px) {
+@media (max-width: 600px) {
   header {
     flex-wrap: wrap;
     gap: 0.6rem;
@@ -404,6 +427,80 @@
   .app-body { padding: 1rem; }
   .slot-row { grid-template-columns: 60px 1fr; }
 }
+
+  /* WHAT'S NEW */
+  .whats-new-btn {
+    background: none;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: var(--bark-light);
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+  }
+  .whats-new-btn:hover { color: var(--leaf); }
+  .changelog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(61,43,31,0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+    padding: 1rem;
+  }
+  .changelog-overlay.open { display: flex; }
+  .changelog-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 420px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+  .changelog-modal h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    margin-bottom: 1.25rem;
+    color: var(--bark);
+  }
+  .changelog-entry { margin-bottom: 1.25rem; }
+  .changelog-version {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--leaf);
+    margin-bottom: 0.15rem;
+  }
+  .changelog-date {
+    font-size: 0.72rem;
+    color: var(--bark-light);
+    margin-bottom: 0.4rem;
+  }
+  .changelog-entry ul {
+    padding-left: 1.1rem;
+    font-size: 0.82rem;
+    color: var(--bark);
+    line-height: 1.6;
+  }
+  .changelog-close {
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--leaf);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .changelog-close:hover { background: #5a0f10; }
 </style>
 </head>
 <body>
@@ -412,9 +509,9 @@
 <div id="login-screen">
   <div class="login-card">
     <div class="tree">🌳</div>
-    <h1>Redwood Sessions</h1>
+    <h1>Redwood 15 mins sessions</h1>
     <p>Teacher booking portal</p>
-<p style="font-size:0.82rem;color:var(--bark-light);margin-top:-1rem;margin-bottom:2rem;line-height:1.5;">Book a slot, share your Zoom link, and you're done.</p><p>Any Redwood child can join any session.</p>
+<p style="font-size:0.82rem;color:var(--bark-light);margin-top:-1rem;margin-bottom:2rem;line-height:1.5;">Book a slot, share your Zoom link, and you're done. Any Redwood child can join any session.</p>
     <input type="password" id="password-input" placeholder="Enter password" />
     <button id="login-btn">Enter</button>
     <div class="login-error" id="login-error">Incorrect password. Try again.</div>
@@ -454,6 +551,7 @@
         <span>Need support?</span>
       </a>
       <button class="add-btn" onclick="openModal()">+ Add session</button>
+      <button class="whats-new-btn" onclick="document.getElementById('changelog').classList.add('open')">What's new</button>
     </div>
   </header>
 
@@ -469,6 +567,7 @@
           <option>Ms Nour</option>
           <option>Ms Emy</option>
           <option>Ms Ashley</option>
+          <option>Ms Divya</option>
         </select>
       </div>
       <div class="schedule" id="schedule">
@@ -487,11 +586,20 @@
     <div class="form-group">
       <label>Your name</label>
       <select id="teacher-select" onchange="selectedTeacher = this.value">
-        <option value="">Select teacher…</option>
+        <option value="">Select teacher… (not listed? get in touch)</option>
         <option>Ms Ghita</option>
         <option>Ms Nour</option>
         <option>Ms Emy</option>
         <option>Ms Ashley</option>
+        <option>Ms Divya</option>
+        <option>Ms Banan</option>
+        <option>Ms Ashieqah</option>
+        <option>Ms Leanne</option>
+        <option>Ms Karina</option>
+        <option>Ms Maddie</option>
+        <option>Ms Rebecca</option>
+        <option>Ms Nadia</option>
+        <option>Ms Samia</option>
       </select>
     </div>
     <div class="form-group">
@@ -522,10 +630,64 @@
   </div>
 </div>
 
+<div class="changelog-overlay" id="changelog">
+  <div class="changelog-modal">
+    <h2>What's new 🎉</h2>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.3 | tweaks</div>
+      <div class="changelog-date">31 Mar 2026</div>
+      <ul>
+        <li>Schedule opens on today's date automatically</li>
+        <li>Scrolls to the current time slot on load</li>
+        <li>Session count badges on day tabs</li>
+        <li>What's new popup added</li>
+      </ul>
+    </div>
+<div class="changelog-entry">
+      <div class="changelog-version">v1.2 | improvements</div>
+      <div class="changelog-date">30 Mar 2026</div>
+      <ul>
+        <li>LIVE badge on sessions happening now</li>
+        <li>Past sessions shown but greyed out, no actions</li>
+        <li>Start Zoom button replaces Join Zoom</li>
+        <li>Zoom links without https:// are fixed automatically</li>
+        <li>Filter resets after booking a session</li>
+      </ul>
+    </div>
+<div class="changelog-entry">
+      <div class="changelog-version">v1.1 | improvements</div>
+      <div class="changelog-date">29 Mar 2026</div>
+      <ul>
+        <li>Book, edit and cancel sessions</li>
+        <li>WhatsApp support button</li>
+        <li>🌍 on slots from 16:00 for international teachers</li>
+        <li>Timezone selector</li>
+        <li>Filter by teacher</li>
+      </ul>
+    </div>
+<div class="changelog-entry">
+      <div class="changelog-version">v1.0.1 | fixes</div>
+      <div class="changelog-date">28 Mar 2026</div>
+      <ul>
+        <li>debug</li>
+      </ul>
+    </div>
+<div class="changelog-entry">
+      <div class="changelog-version">v1.0 | Launch</div>
+      <div class="changelog-date">28 Mar 2026</div>
+      <ul>
+        <li>Teacher booking portal with daily schedule view</li>
+        <li>Password-protected access</li>
+      </ul>
+    </div>
+    <button class="changelog-close" onclick="document.getElementById('changelog').classList.remove('open')">Close</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-  const WORKER_URL = 'https://redwood-api-dev.lunamargherita.com';
+  const WORKER_URL = 'https://redwood-api.lunamargherita.com';
   const DUBAI_OFFSET = 4;
   let tzOffset = 4;
 
@@ -581,6 +743,12 @@
   let editingSessionId = null;
   let selectedTeacher = '';
 
+  function getTodayIndex() {
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Dubai' });
+    const idx = CORRECT_DAYS.findIndex(d => d.date === today);
+    return idx >= 0 ? idx : 0;
+  }
+
   // --- AUTH ---
   let authToken = sessionStorage.getItem('redwood-teacher-token') || null;
 
@@ -619,6 +787,7 @@
   function showApp() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    activeDayIndex = getTodayIndex();
     init();
   }
 
@@ -643,8 +812,8 @@
     const container = document.getElementById('day-tabs');
     CORRECT_DAYS.forEach((day, i) => {
       const btn = document.createElement('button');
-      btn.className = 'day-tab' + (i === 0 ? ' active' : '');
-      btn.textContent = day.label;
+      btn.className = 'day-tab' + (i === activeDayIndex ? ' active' : '');
+      btn.innerHTML = `${day.label} <span class="tab-badge" id="badge-${i}"></span>`;
       btn.onclick = () => { activeDayIndex = i; setActiveTab(i); renderSchedule(); };
       container.appendChild(btn);
     });
@@ -710,7 +879,40 @@
       html += renderSlotRow(slot, byTime[slot] || [], day.date);
     });
 
-    container.innerHTML = html;
+   container.innerHTML = html;
+    updateDayBadges();
+    scrollToCurrentTime();
+  }
+
+  function updateDayBadges() {
+  CORRECT_DAYS.forEach((day, i) => {
+    const count = sessions.filter(s => s.date === day.date).length;
+    const badge = document.getElementById(`badge-${i}`);
+    if (badge) {
+      const isActive = i === activeDayIndex;
+      badge.textContent = count > 0 ? count : '';
+      badge.style.display = count > 0 && !isActive ? 'inline-flex' : 'none';
+    }
+  });
+}
+
+  function scrollToCurrentTime() {
+    const now = new Date();
+    const dubaiNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Dubai' }));
+    const today = dubaiNow.toLocaleDateString('en-CA', { timeZone: 'Asia/Dubai' });
+    const day = CORRECT_DAYS[activeDayIndex];
+    if (day.date !== today) return; // only scroll on today's tab
+    const currentTime = `${String(dubaiNow.getHours()).padStart(2,'0')}:${String(dubaiNow.getMinutes()).padStart(2,'0')}`;
+    const allSlots = [...MORNING_SLOTS, ...AFTERNOON_SLOTS];
+    const targetSlot = allSlots.find(s => s >= currentTime) || allSlots[allSlots.length - 1];
+    const slotRows = document.querySelectorAll('.slot-row');
+    const slotTimes = document.querySelectorAll('.slot-time');
+    for (let i = 0; i < slotTimes.length; i++) {
+      if (slotTimes[i].textContent.trim().startsWith(displayTime(targetSlot))) {
+        slotRows[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        break;
+      }
+    }
   }
 
   function renderSlotRow(slot, slotSessions, date) {
@@ -801,6 +1003,8 @@
     document.getElementById('modal-slot-label').textContent = 'Choose a slot below';
     document.getElementById('submit-btn').textContent = 'Book slot';
     document.querySelector('#modal h2').textContent = 'Book a session';
+    selectedTeacher = '';
+    document.getElementById('teacher-filter').value = '';
     editingSessionId = null;
   }
 

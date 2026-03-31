@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redwood Sessions — Teacher Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: rgb(250, 240, 227);
+    --bark: #3d2b1f;
+    --bark-light: #6b4c3b;
+    --bark-faint: #a07060;
+    --leaf: rgb(121, 21, 22);
+    --leaf-light: rgba(121, 21, 22, 0.07);
+    --leaf-mid: rgba(121, 21, 22, 0.15);
+    --border: #e2d9d0;
+    --sun: #e8a020;
+    --sun-light: #fef3e0;
+    --white: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--bark);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── LOGIN ── */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: var(--cream);
+  }
+
+  .login-card {
+    background: white;
+    border-radius: 24px;
+    padding: 3rem 2.5rem;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 8px 48px rgba(61,43,31,0.10);
+    text-align: center;
+  }
+
+  .login-card .tree { font-size: 2.8rem; margin-bottom: 1.2rem; }
+
+  .login-card h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.7rem;
+    color: var(--bark);
+    margin-bottom: 0.3rem;
+  }
+
+  .login-card .sub {
+    font-size: 0.85rem;
+    color: var(--bark-light);
+    margin-bottom: 2rem;
+  }
+
+  .login-card input {
+    width: 100%;
+    padding: 0.85rem 1.1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    color: var(--bark);
+    background: var(--cream);
+    margin-bottom: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+
+  .login-card input:focus { border-color: var(--leaf); }
+
+  .login-card button {
+    width: 100%;
+    padding: 0.85rem;
+    background: var(--leaf);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .login-card button:hover { background: #5a0f10; }
+  .login-card button:active { transform: scale(0.98); }
+
+  .login-error {
+    color: var(--leaf);
+    font-size: 0.82rem;
+    margin-top: 0.75rem;
+    display: none;
+  }
+
+  /* ── MAIN ── */
+  #guide { display: none; }
+
+  /* ── TOP NAV ── */
+  .top-nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 0.9rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .nav-brand span { font-size: 1.3rem; }
+
+  .nav-brand h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    color: var(--bark);
+  }
+
+  .nav-brand small {
+    display: block;
+    font-size: 0.68rem;
+    color: var(--bark-light);
+    font-weight: 400;
+    letter-spacing: 0.03em;
+  }
+
+  .nav-link {
+    font-size: 0.82rem;
+    color: var(--bark-light);
+    text-decoration: none;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.4rem 0.9rem;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .nav-link:hover { border-color: var(--leaf); color: var(--leaf); }
+
+  /* ── HERO ── */
+  .hero {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 4rem 2rem 3.5rem;
+    text-align: center;
+  }
+
+  .hero-tree { font-size: 3rem; margin-bottom: 1.2rem; display: block; }
+
+  .hero h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: var(--bark);
+    line-height: 1.15;
+    margin-bottom: 0.75rem;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-sub {
+    font-size: 1rem;
+    color: var(--bark-light);
+    max-width: 440px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.6;
+  }
+
+  .steps-row {
+    display: flex;
+    gap: 1.6rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .step-chip {
+    font-size: 1rem;
+    color: var(--leaf);
+    font-weight: 400;
+  }
+
+  .step-chip b {
+    color: var(--leaf);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-right: 0.2rem;
+  }
+
+  /* ── CONTENT ── */
+  .content {
+    max-width: 740px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 3.5rem;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-label {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--leaf);
+    margin-bottom: 0.6rem;
+  }
+
+  .section h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    color: var(--bark);
+    margin-bottom: 0.5rem;
+    line-height: 1.25;
+  }
+
+  .section-intro {
+    font-size: 0.92rem;
+    color: var(--bark-light);
+    margin-bottom: 1.8rem;
+    line-height: 1.6;
+    max-width: 500px;
+  }
+
+  /* ── NUMBERED STEPS ── */
+  .steps { display: flex; flex-direction: column; gap: 1.2rem; }
+
+  .step {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    background: var(--leaf);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    margin-top: 0.1rem;
+  }
+
+  .step-body h4 {
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--bark);
+    margin-bottom: 0.2rem;
+  }
+
+  .step-body p {
+    font-size: 0.87rem;
+    color: var(--bark-light);
+    line-height: 1.6;
+  }
+
+  /* ── PASSWORD BOX ── */
+  .password-box {
+    background: var(--bark);
+    color: white;
+    border-radius: 16px;
+    padding: 1.6rem 2rem;
+    margin: 1.8rem 0;
+    text-align: center;
+  }
+
+  .password-box .pw-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    margin-bottom: 0.5rem;
+  }
+
+  .password-box .pw-val {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.5rem;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.75rem;
+  }
+
+  .pw-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    border-radius: 8px;
+    padding: 0.35rem 0.9rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-bottom: 0.75rem;
+  }
+
+  .pw-copy-btn:hover { background: rgba(255,255,255,0.22); }
+  .pw-copy-btn.copied { background: rgba(255,255,255,0.25); }
+
+  .password-box .pw-url {
+    font-size: 0.78rem;
+    opacity: 0.6;
+    font-weight: 600;
+  }
+
+  .password-box .pw-url a {
+    color: white;
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+
+  .password-box .pw-url a:hover { opacity: 1; }
+
+  /* ── FORM MOCK ── */
+  .form-mock {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 1.4rem;
+    margin: 1.5rem 0;
+  }
+
+  .form-mock-title {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bark-light);
+    margin-bottom: 1rem;
+  }
+
+  .mock-field {
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.9rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .mock-field.focus { border-color: var(--leaf); background: var(--leaf-light); }
+
+  .mock-field .fl {
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--bark-light);
+    margin-bottom: 0.15rem;
+  }
+
+  .mock-field .fv {
+    font-size: 0.88rem;
+    color: var(--bark);
+  }
+
+  .mock-field .fv.hint { color: var(--border); }
+
+  /* ── SCHEDULE MOCK ── */
+  .schedule-mock {
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 1.2rem;
+    margin: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mock-time-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .mock-time {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--bark-light);
+    width: 44px;
+    flex-shrink: 0;
+    padding-top: 0.55rem;
+    text-align: right;
+  }
+
+  .mock-cards { flex: 1; display: flex; flex-direction: column; gap: 0.35rem; }
+
+  .mock-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .mock-card.live { border-color: #e74c3c; box-shadow: 0 0 0 3px rgba(231,76,60,0.08); }
+
+  .mock-card .mc-name { font-weight: 600; font-size: 0.83rem; color: var(--bark); }
+  .mock-card .mc-act { font-size: 0.76rem; color: var(--bark-light); }
+
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: #e74c3c;
+    color: white;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0.12rem 0.45rem;
+    border-radius: 20px;
+    margin-left: 0.3rem;
+  }
+
+  .live-dot {
+    width: 5px; height: 5px;
+    background: white;
+    border-radius: 50%;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .mc-btns { display: flex; gap: 0.3rem; flex-shrink: 0; }
+
+  .mc-btn {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    color: var(--bark-light);
+    background: none;
+    font-family: 'DM Sans', sans-serif;
+    cursor: default;
+  }
+
+  .mc-btn.zoom { color: var(--leaf); border: none; font-weight: 600; padding-left: 0; }
+  .mc-btn.cancel { color: #c0392b; }
+
+  .mock-empty {
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    padding: 0.5rem;
+    font-size: 0.76rem;
+    color: var(--border);
+    text-align: center;
+  }
+
+  /* ── TIP / EXAMPLE BOXES ── */
+  .tip-box {
+    background: var(--leaf-light);
+    border: 1.5px solid var(--leaf-mid);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin: 1.2rem 0;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .tip-box .ti { font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+  .tip-box p {
+    font-size: 0.87rem;
+    color: var(--bark);
+    line-height: 1.55;
+  }
+
+  .tip-box strong { color: var(--leaf); }
+
+  .example-box {
+    background: var(--sun-light);
+    border-left: 0px solid var(--sun);
+    border-radius: 0 10px 10px 0;
+    padding: 0.9rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+
+  .example-box .ex-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sun);
+    margin-bottom: 0.4rem;
+  }
+
+  .example-box p {
+    font-size: 0.87rem;
+    color: var(--bark);
+    line-height: 1.6;
+  }
+
+  /* ── FAQ ── */
+  .faq { display: flex; flex-direction: column; }
+
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .faq-item:first-child { border-top: 1px solid var(--border); }
+
+  .faq-q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 0;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--bark);
+    user-select: none;
+    list-style: none;
+  }
+
+  .faq-q::-webkit-details-marker { display: none; }
+
+  .faq-icon {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: var(--bark-light);
+    transition: all 0.2s;
+  }
+
+  details[open] .faq-icon {
+    background: var(--leaf);
+    border-color: var(--leaf);
+    color: white;
+    transform: rotate(45deg);
+  }
+
+  .faq-a {
+    font-size: 0.87rem;
+    color: var(--bark-light);
+    line-height: 1.65;
+    padding-bottom: 1rem;
+  }
+
+  /* ── CONTACT ── */
+  .contact-box {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    margin-top: 3rem;
+  }
+
+  .contact-box .wa-icon { font-size: 2.2rem; margin-bottom: 1rem; display: block; }
+
+  .contact-box h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--bark);
+    margin-bottom: 0.4rem;
+  }
+
+  .contact-box p {
+    font-size: 0.87rem;
+    color: var(--bark-light);
+    max-width: 360px;
+    margin: 0 auto 1.5rem;
+    line-height: 1.6;
+  }
+
+  .wa-btn-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #25D366;
+    color: white;
+    border-radius: 10px;
+    padding: 0.7rem 1.5rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .wa-btn-link:hover { background: #1ea854; }
+  .wa-btn-link:active { transform: scale(0.97); }
+
+  /* ── DELEGATE CTA ── */
+  .delegate-box {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem 2rem 2rem;
+    margin-bottom: 3rem;
+  }
+  .delegate-box h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.35rem;
+    color: var(--bark);
+    margin-bottom: 0.4rem;
+  }
+  .delegate-box p {
+    font-size: 0.87rem;
+    color: var(--bark-light);
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+  }
+  .delegate-box .include-list {
+    font-size: 0.84rem;
+    color: var(--bark-light);
+    line-height: 1.7;
+    margin-bottom: 1.4rem;
+  }
+  .delegate-btns {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .delegate-btn-wa {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #25D366;
+    color: white;
+    border-radius: 10px;
+    padding: 0.7rem 1.3rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .delegate-btn-wa:hover { background: #1ea854; }
+  .delegate-btn-email {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bark);
+    color: white;
+    border: 1.5px solid var(--bark);
+    border-radius: 10px;
+    padding: 0.7rem 1.3rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .delegate-btn-email:hover { background: var(--bark-light); border-color: var(--bark-light); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 3rem 0;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .hero { padding: 3rem 1.5rem 2.5rem; }
+    .content { padding: 2rem 1rem 4rem; }
+    .top-nav { padding: 0.8rem 1rem; }
+    .password-box { padding: 1.3rem 1.4rem; }
+    .contact-box { padding: 2rem 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="tree">📖</div>
+    <h1>Redwood Teacher Guide</h1>
+    <p class="sub">Enter your password to continue</p>
+    <input type="password" id="pw" placeholder="Password" autocomplete="current-password" />
+    <button id="login-btn">Enter</button>
+    <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- GUIDE -->
+<div id="guide">
+
+  <!-- NAV -->
+  <nav class="top-nav">
+    <div class="nav-brand">
+      <span>📖</span>
+      <div>
+        <h1>Redwood Sessions Guide</h1>
+        <small>Teacher Guide</small>
+      </div>
+    </div>
+    <a class="nav-link" href="https://redwood.lunamargherita.com/teacher" target="_blank">Start booking your sessions ↗</a>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="hero-tree">📖</span>
+    <h2>Everything you need to know in one page</h2>
+    <p class="hero-sub">Book a slot, add your Zoom link, and you're done. Any Redwood child can join any session.</p>
+    <div class="steps-row">
+      <div class="step-chip"><b>1.</b> Log in</div>
+      <div class="step-chip"><b>2.</b> Pick a slot</div>
+      <div class="step-chip"><b>3.</b> Add your Zoom link</div>
+      <div class="step-chip"><b>4.</b> Done</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- DELEGATE CTA -->
+    <div class="delegate-box">
+      <h3>Not comfortable booking yourself?</h3>
+      <p>No problem. Send your activities via WhatsApp or email and see them appear on the schedule in a few minutes.</p>
+      <div class="include-list">
+        Include: your name · starting time (Dubai time) · duration · your Zoom link · what you're planning (optional but a nice touch)
+      </div>
+      <p style="font-size:0.82rem;font-weight:800;color:var(--bark-light);margin-bottom:1.2rem;">Don't see your name in the teacher list? Get in touch and it will be added right away.</p>
+      <div class="delegate-btns">
+        <a class="delegate-btn-wa" href="https://wa.me/447463978471?text=Hi%20Luna%2C%20I%27d%20like%20to%20add%20a%20session%3A%0A%0AMy%20name%3A%20%0AStarting%20time%20(Dubai%20time)%3A%20%0ADuration%3A%20%0AZoom%20link%3A%20%0ADescription%3A%20" target="_blank">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          WhatsApp
+        </a>
+        <a class="delegate-btn-email" href="mailto:lunamargherita@gmail.com?subject=Redwood%20session%20request&body=My%20name%3A%20%0AActivity%20starting%20time%20(Dubai%20time)%3A%20%0ADuration%3A%20%0AZoom%20link%3A%20%0ADescription%3A%20" target="_blank">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg> Email
+        </a>
+      </div>
+    </div>
+
+    <!-- WHAT IS THIS -->
+    <div class="section" id="s1">
+      <div class="section-label">What is this?</div>
+      <h3>A drop in schedule for remote learning days</h3>
+      <p class="section-intro">Think of it as the Redwood common area, online. You offer a 15 minute session whenever it works for you. Parents check the live schedule and join what fits their day.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Pick any 15 minute slot</h4>
+            <p>Morning, afternoon, or a later slot for families who are abroad. According to feedback, parents would like to join the sessions but sometimes the times don't work for them or 30 minutes is too much of a commitment.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>You host whatever feels natural</h4>
+            <p>A song, a story, some phonics, a dance break. Keep it light. 15 minutes of genuine engagement with a familiar face is what children need right now.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Any Redwood child can join, not just your class</h4>
+            <p>Siblings can attend together. Children whose teacher isn't available can still see a familiar Redwood face. Parents choose the sessions that fits their day. The schedule is open to the whole school.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h4>No coordination needed</h4>
+            <p>You don't need to check with anyone before booking. If two teachers pick the same slot, that's fine - parents just have more options to choose from. The schedule updates in real time.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <span class="ti">💡</span>
+        <p><strong>On names:</strong> Ask parents to rename their Zoom display to their child's name before joining. When children join from outside your usual class, hearing their name called out will increase their sense of belonging.</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- HOW TO BOOK YOUR SESSIONS -->
+    <div class="section" id="s2">
+      <div class="section-label">How to book</div>
+      <h3>Four fields. Under two minutes.</h3>
+      <p class="section-intro">Open the booking page, log in with your teacher password, and fill in the form.</p>
+
+      <div class="password-box">
+        <div class="pw-label">this is the password</div>
+        <div class="pw-val" id="pw-display">15minJOY</div>
+        <button class="pw-copy-btn" id="copy-btn" onclick="copyPassword()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copy-label">Copy password</span>
+        </button>
+        <div class="pw-url"><a href="https://redwood.lunamargherita.com/teacher" target="_blank">START BOOKING YOUR SESSIONS NOW ↗</a></div>
+      </div>
+
+      <p style="font-size:0.87rem;color:var(--bark-light);margin-bottom:1.5rem;line-height:1.6;">Once you're in, click <strong style="color:var(--bark);">+ Add session</strong> in the top right, or tap any empty slot in the schedule directly. A booking form opens.</p>
+
+      <div class="form-mock">
+        <div class="form-mock-title">Booking form. what you'll see</div>
+
+        <div class="mock-field">
+          <div class="fl">Your name</div>
+          <div class="fv">Ms Ghita</div>
+        </div>
+        <div class="mock-field">
+          <div class="fl">Day</div>
+          <div class="fv">Tue 31 Mar</div>
+        </div>
+        <div class="mock-field">
+          <div class="fl">Time slot</div>
+          <div class="fv">09:30</div>
+        </div>
+        <div class="mock-field focus">
+          <div class="fl">Activity</div>
+          <div class="fv">Morning songs</div>
+        </div>
+        <div class="mock-field focus">
+          <div class="fl">Zoom link</div>
+          <div class="fv">https://zoom.us/j/123456789</div>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <div class="ex-label">Activity ideas</div>
+        <p>Morning songs · Goodbye song · Story time · Phonics with actions · Stretch your body · Show and tell · What's in the bag? · Counting with toys · Colour hunt around the house</p>
+      </div>
+
+      <div class="tip-box">
+        <span class="ti">🕐</span>
+        <p><strong>All times are Dubai time (GMT+4).</strong> If you're abroad, the schedule has a timezone selector so you can see everything converted to your local time. Slots after 4pm Dubai time are marked with 🌍 Those are perfect morning slots for teachers and parents in Europe.</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- MANAGING SESSIONS -->
+    <div class="section" id="s3">
+      <div class="section-label">Managing your sessions</div>
+      <h3>Edit, cancel, go live</h3>
+      <p class="section-intro">Once booked, your sessions appear on the schedule. You can manage them any time before they start.</p>
+
+      <div class="schedule-mock">
+        <div class="mock-time-row">
+          <div class="mock-time">09:30</div>
+          <div class="mock-cards">
+            <div class="mock-card">
+              <div>
+                <div class="mc-name">Ms Ghita</div>
+                <div class="mc-act">Morning songs</div>
+              </div>
+              <div class="mc-btns">
+                <span class="mc-btn zoom">Start Zoom ↗</span>
+                <span class="mc-btn">Edit</span>
+                <span class="mc-btn cancel">Cancel</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mock-time-row">
+          <div class="mock-time">09:45</div>
+          <div class="mock-cards">
+            <div class="mock-card live">
+              <div>
+                <div class="mc-name">Ms Nour <span class="live-badge"><span class="live-dot"></span>LIVE</span></div>
+                <div class="mc-act">Story time</div>
+              </div>
+              <div class="mc-btns">
+                <span class="mc-btn zoom">Start Zoom ↗</span>
+                <span class="mc-btn">Edit</span>
+                <span class="mc-btn cancel">Cancel</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mock-time-row">
+          <div class="mock-time">10:00</div>
+          <div class="mock-cards">
+            <div class="mock-empty">+ Add session</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num" style="background:none;border:1.5px solid var(--border);color:var(--bark-light);font-size:0.9rem;">✏</div>
+          <div class="step-body">
+            <h4>Edit a session</h4>
+            <p>Changed your Zoom link or want to update what you're planning? Click Edit on any upcoming session. Changes appear immediately on the parent schedule.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num" style="background:none;border:1.5px solid var(--border);color:var(--bark-light);">✕</div>
+          <div class="step-body">
+            <h4>Cancel a session</h4>
+            <p>Something came up? Click Cancel.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num" style="background:none;border:1.5px solid var(--border);color:var(--bark-light);font-size:0.85rem;">▶</div>
+          <div class="step-body">
+            <h4>When it's time to go live</h4>
+            <p>Click <strong style="color:var(--bark);">Start Zoom</strong> from your session card to open your meeting (or from wherever). During your 15 minute window, your session shows a red LIVE badge on the parent schedule.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- FAQ -->
+    <div class="section" id="s4">
+      <div class="section-label">Questions</div>
+      <h3>Questions you might have</h3>
+      <p class="section-intro" style="margin-bottom:1.5rem;">If something isn't answered here, use the WhatsApp button below.</p>
+
+      <div class="faq">
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            Do I need to book in advance?
+            <span class="faq-icon">+</span>
+          </summary>
+          <p class="faq-a">No. You can book five minutes before your session. The schedule updates in real time. Of course the sooner, the better.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            What if I book the same time as another teacher?
+            <span class="faq-icon">+</span>
+          </summary>
+          <p class="faq-a">That's completely fine. Both sessions appear on the parent schedule and families choose whichever works for them. More options is better for parents.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            Can children outside my class join?
+            <span class="faq-icon">+</span>
+          </summary>
+          <p class="faq-a">Yes, and that's the point. Any Redwood child can attend any session. You don't need to do anything differently, just treat everyone who joins as a Redwood child, because they are.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            What if I don't know a child's name?
+            <span class="faq-icon">+</span>
+          </summary>
+          <p class="faq-a">Parents are asked to rename their Zoom display to their child's name before joining. If someone hasn't done that, just ask them or ask the child "what's your name?". It's a perfectly fine way to start.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            How long should a session be?
+            <span class="faq-icon">+</span>
+          </summary>
+          <p class="faq-a">15 minutes and that's intentional. It matches toddler attention spans and keeps the commitment manageable for you and for the parents. If the energy is good and you want to run a little over, that's your call. If you had already planned classes of 30 minutes, just add the same zoom link twice: once for the first 15 minutes, and once for the last 15 minutes.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            Can I book multiple slots in one day?
+            <span class="faq-icon">+</span>
+          </summary>
+          <p class="faq-a">Yes. Book as many as you like. One is already a contribution. Two or three gives parents more options throughout the day.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            I'm abroad. Can I still participate?
+            <span class="faq-icon">+</span>
+          </summary>
+          <p class="faq-a">Absolutely. The schedule has a timezone selector. Afternoon slots in Dubai (marked 🌍) may be perfect morning slots wherever you are. Families abroad are in the same situation and have been asking for later sessions.</p>
+        </details>
+
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="section" id="s5">
+      <div class="contact-box">
+        <span class="wa-icon">💬</span>
+        <h3>Something not working?</h3>
+        <p>There's a "Need support?" button on the booking page that goes straight to Luna, who can help you with questions or solving problems with the system. Feedback always welcome.</p>
+        <a class="wa-btn-link" href="https://wa.me/447463978471?text=Hi%20Luna%2C%20I%27m%20a%20Redwood%20teacher%20and%20I%20need%20help%20with%20the%20sessions%20page%3A%20" target="_blank">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          WhatsApp Support
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const CORRECT_PASSWORD = 'starteam';
+
+  const pwInput = document.getElementById('pw');
+  const loginBtn = document.getElementById('login-btn');
+  const loginError = document.getElementById('login-error');
+
+  function tryLogin() {
+    if (pwInput.value.trim() === CORRECT_PASSWORD) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('guide').style.display = 'block';
+      sessionStorage.setItem('redwood-guide-auth', '1');
+      initAnimations();
+    } else {
+      loginError.style.display = 'block';
+      pwInput.value = '';
+      pwInput.focus();
+    }
+  }
+
+  loginBtn.addEventListener('click', tryLogin);
+  pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+
+  if (sessionStorage.getItem('redwood-guide-auth') === '1') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('guide').style.display = 'block';
+    initAnimations();
+  } else {
+    pwInput.focus();
+  }
+
+  function copyPassword() {
+    const pw = document.getElementById('pw-display').textContent;
+    navigator.clipboard.writeText(pw).then(() => {
+      const btn = document.getElementById('copy-btn');
+      const label = document.getElementById('copy-label');
+      btn.classList.add('copied');
+      label.textContent = 'Copied!';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        label.textContent = 'Copy password';
+      }, 2000);
+    });
+  }
+
+  function initAnimations() {
+    const sections = document.querySelectorAll('.section');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    sections.forEach(s => observer.observe(s));
+  }
+</script>
+</body>
+</html>
